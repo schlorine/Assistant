@@ -1,42 +1,18 @@
-# workspace
+# 个人效率助理 (Personal Workspace)
 
-This template should help get you started developing with Vue 3 in Vite.
+平时零碎的想法和待办事项总需要一个妥善安置的地方，这也是搭建这个前端工具的初衷。项目整体依托 Vue 3 体系构建，致力于提供一个清爽、无干扰的记录环境。
 
-## Recommended IDE Setup
+核心业务逻辑目前被拆分成了两个相对独立的板块。平时浏览月历版面，可以直接在网格上查阅哪几天记录过日志，格子下方附带的待办事项预览能让人对近期的任务负荷有个直观把握。点击具体日期后，左侧的富文本区域与右侧的清单构成了单日专注工作流。
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+对于那些周期较长的工程，则统一收纳在项目看板中。这部分比较实用的一点是内置了独立并行的计时器模块。借由底层的全局状态接管，在不同视图间切换甚至意外重载网页时，后台的计时数据依然能够精准延续。
 
-## Recommended Browser Setup
+### 技术选型与现阶段架构
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+主要的功能模块采用了以下技术方案来落地：
+* **核心框架**：Vue 3 (Composition API) 搭配 TypeScript，保证了底层逻辑的严密性。
+* **状态与路由**：Vue Router 负责拦截浏览器地址变化实现平滑跳转，Pinia 则充当了全局数据调度中心。
+* **功能组件**：通过 `@vueup/vue-quill` 引入了轻量级的富文本支持。
+* **数据固化**：现阶段的文本缓存和时间戳均采取 LocalStorage 离线存储策略。
 
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
+### 后续演进方向
+目前的本地闭环已经相对稳健。为了实现跨设备的无缝漫游，后续的开发计划中包含了云端账户体系的接入，同时也会补充一些提升界面沉浸感的交互动效。
