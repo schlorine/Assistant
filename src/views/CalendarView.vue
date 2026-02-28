@@ -29,7 +29,6 @@ const nextMonth = () => {
   currentDate.value = new Date(currentYear.value, currentMonth.value + 1, 1)
 }
 
-// 统一提取日期字符串
 const getFullDateString = (day: number) => {
   return `${currentYear.value}-${String(currentMonth.value + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
@@ -41,27 +40,29 @@ const handleDayClick = (day: number) => {
   })
 }
 
-// 判定当天是否包含实质性的日志内容
 const hasJournal = (day: number) => {
   const record = store.records[getFullDateString(day)]
   if (!record || !record.content) return false
-  
-  // 剥离 HTML 标签，排除纯空行或换行符
   const plainText = record.content.replace(/<[^>]+>/g, '').trim()
   return plainText.length > 0 || record.content.includes('<img')
 }
 
-// 提取当天待办数据
 const getTodos = (day: number) => {
   return store.records[getFullDateString(day)]?.todos || []
 }
 
-// 年月修改交互状态
+// 新增：判断当前渲染的日期是否为物理时间的“今天”
+const realToday = new Date()
+const isToday = (day: number) => {
+  return currentYear.value === realToday.getFullYear() &&
+         currentMonth.value === realToday.getMonth() &&
+         day === realToday.getDate()
+}
+
 const isEditingDate = ref(false)
 const editDateValue = ref('')
 const dateInputRef = ref<HTMLInputElement | null>(null)
 
-// 触发编辑状态并自动聚焦输入框
 const startEditDate = async () => {
   editDateValue.value = `${currentYear.value}-${String(currentMonth.value + 1).padStart(2, '0')}`
   isEditingDate.value = true
@@ -69,7 +70,6 @@ const startEditDate = async () => {
   dateInputRef.value?.focus()
 }
 
-// 校验并应用新日期
 const saveEditDate = () => {
   if (!isEditingDate.value) return
   isEditingDate.value = false
@@ -115,7 +115,9 @@ const saveEditDate = () => {
         :class="{ 'has-journal': hasJournal(day) }"
         @click="handleDayClick(day)"
       >
-        <span class="day-text">{{ day }}</span>
+        <span class="day-text" :class="{ 'today-text': isToday(day) }">
+          {{ isToday(day) ? 'Today' : day }}
+        </span>
         
         <div class="todo-preview-list" v-if="getTodos(day).length > 0">
           <div
@@ -133,130 +135,33 @@ const saveEditDate = () => {
 </template>
 
 <style scoped>
-.calendar-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: system-ui, -apple-system, sans-serif;
-}
-
-.calendar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  height: 48px;
-}
-
-.nav-btn {
-  padding: 8px 16px;
-  background-color: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
+/* 保留原有全部样式 */
+.calendar-wrapper { max-width: 900px; margin: 0 auto; padding: 20px; font-family: system-ui, -apple-system, sans-serif; }
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; height: 48px; }
+.nav-btn { padding: 8px 16px; background-color: #f3f4f6; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; }
 .nav-btn:hover { background-color: #e5e7eb; }
-
-.date-display {
-  cursor: pointer;
-  padding: 4px 16px;
-  border-radius: 6px;
-  transition: background-color 0.2s;
-}
-
+.date-display { cursor: pointer; padding: 4px 16px; border-radius: 6px; transition: background-color 0.2s; }
 .date-display:hover { background-color: #f3f4f6; }
 .date-display h2 { margin: 0; color: #1f2937; }
+.date-input { font-size: 1.5rem; font-weight: bold; padding: 4px 8px; border: 1px solid #3b82f6; border-radius: 6px; outline: none; font-family: inherit; text-align: center; }
+.weekdays-row { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 600; color: #4b5563; margin-bottom: 12px; }
+.days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.day-cell { aspect-ratio: 1; display: flex; flex-direction: column; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px; cursor: pointer; background-color: #ffffff; transition: all 0.2s ease; overflow: hidden; }
+.day-cell.has-journal { background-color: #e0f2fe; }
+.day-cell:hover:not(.empty-cell) { border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+.day-cell.has-journal:hover:not(.empty-cell) { background-color: #bae6fd; }
+.empty-cell { border: none; background-color: transparent; cursor: default; }
+.day-text { font-size: 1.125rem; color: #1f2937; font-weight: 500; }
 
-.date-input {
-  font-size: 1.5rem;
-  font-weight: bold;
-  padding: 4px 8px;
-  border: 1px solid #3b82f6;
-  border-radius: 6px;
-  outline: none;
-  font-family: inherit;
-  text-align: center;
+/* 新增的 Today 专属样式 */
+.today-text {
+  color: #3b82f6;
+  font-weight: 800;
+  font-size: 1rem;
 }
 
-.weekdays-row {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  font-weight: 600;
-  color: #4b5563;
-  margin-bottom: 12px;
-}
-
-.days-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px; 
-}
-
-.day-cell {
-  aspect-ratio: 1;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 8px;
-  cursor: pointer;
-  background-color: #ffffff;
-  transition: all 0.2s ease;
-  overflow: hidden; /* 配合待办文字截断使用 */
-}
-
-/* 具有日志内容的格子高亮 */
-.day-cell.has-journal {
-  background-color: #e0f2fe;
-}
-
-.day-cell:hover:not(.empty-cell) {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-.day-cell.has-journal:hover:not(.empty-cell) {
-  background-color: #bae6fd;
-}
-
-.empty-cell {
-  border: none;
-  background-color: transparent;
-  cursor: default;
-}
-
-.day-text {
-  font-size: 1.125rem;
-  color: #1f2937;
-  font-weight: 500;
-}
-
-.todo-preview-list {
-  margin-top: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-/* 隐藏内部滚动条使视觉保持清爽 */
+.todo-preview-list { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
 .todo-preview-list::-webkit-scrollbar { display: none; }
-
-.todo-preview-item {
-  font-size: 0.75rem;
-  color: #374151;
-  background-color: rgba(255, 255, 255, 0.5);
-  padding: 2px 6px;
-  border-radius: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis; /* 文字溢出处理 */
-}
-
-.todo-preview-item.done-item {
-  text-decoration: line-through;
-  color: #9ca3af;
-}
+.todo-preview-item { font-size: 0.75rem; color: #374151; background-color: rgba(255, 255, 255, 0.5); padding: 2px 6px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.todo-preview-item.done-item { text-decoration: line-through; color: #9ca3af; }
 </style>

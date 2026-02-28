@@ -26,7 +26,23 @@ const router = createRouter({
       path: '/project/:id',
       name: 'projectDetail',
       component: () => import('../views/ProjectDetailView.vue')
-    }
+      },
+    // 博客列表页路由
+    {
+    path: '/blog',
+    name: 'blog',
+    component: () => import('../views/BlogView.vue')
+    },
+    {
+    path: '/blog/:id',
+    name: 'blogDetail',
+    component: () => import('../views/BlogDetailView.vue')
+    },
+    {
+  path: '/settings',
+  name: 'settings',
+  component: () => import('../views/SettingsView.vue')
+}
   ]
 })
 

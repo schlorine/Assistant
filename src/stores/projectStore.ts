@@ -5,7 +5,6 @@ export const useProjectStore = defineStore('project', () => {
   const savedProjects = localStorage.getItem('projects')
   const savedTimers = localStorage.getItem('timers')
 
-  // 数据结构新增 activeTimerId 字段，用于在卡片上展示特定的计时器
   const projects = ref<{ id: number; title: string; createDate: string; content?: string; activeTimerId?: number }[]>(
     savedProjects ? JSON.parse(savedProjects) : []
   )
@@ -13,6 +12,31 @@ export const useProjectStore = defineStore('project', () => {
   const timers = ref<Record<number, { id: number; name: string; isRunning: boolean; startTime: number; elapsed: number }[]>>(
     savedTimers ? JSON.parse(savedTimers) : {}
   )
+
+  // 首次访问初始化示例项目
+  if (!savedProjects) {
+    const todayStr = new Date().toISOString().split('T')[0]!
+    const sampleProjectId = 1
+    
+    projects.value.push({
+      id: sampleProjectId,
+      title: '示例项目：前端架构构建',
+      createDate: todayStr,
+      content: '<h3>项目概览</h3><p>这是一个长期维度的示例项目。你可以在此拆解复杂的任务层级，或保存重要的技术参考链接。</p>',
+    })
+    
+    // 注入示例计时器
+    timers.value[sampleProjectId] = [
+      { id: Date.now(), name: 'UI原型设计', isRunning: false, startTime: 0, elapsed: 3600000 }, // 预设 1 小时累计时长
+      { id: Date.now() + 1, name: '后端接口对接', isRunning: false, startTime: 0, elapsed: 0 }
+    ]
+    
+    // 默认展示第一个计时器
+    projects.value[0]!.activeTimerId = timers.value[sampleProjectId][0]!.id
+    
+    localStorage.setItem('projects', JSON.stringify(projects.value))
+    localStorage.setItem('timers', JSON.stringify(timers.value))
+  }
 
   watch(projects, (newVal) => { localStorage.setItem('projects', JSON.stringify(newVal)) }, { deep: true })
   watch(timers, (newVal) => { localStorage.setItem('timers', JSON.stringify(newVal)) }, { deep: true })
@@ -44,7 +68,6 @@ export const useProjectStore = defineStore('project', () => {
     if (project) project.content = content
   }
 
-  // 设定项目卡片上快捷显示的计时器
   const setActiveTimer = (projectId: number, timerId: number | undefined) => {
     const project = projects.value.find(p => p.id === projectId)
     if (project) project.activeTimerId = timerId
