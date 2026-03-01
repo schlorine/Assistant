@@ -51,6 +51,11 @@ const closeWelcomeModal = () => {
           <span class="text" v-show="!isCollapsed">博客版面</span>
         </router-link>
         
+        <router-link to="/whiteboard" class="nav-item" title="灵感白板">
+          <span class="icon">💡</span>
+          <span class="text" v-show="!isCollapsed">灵感白板</span>
+        </router-link>
+
         <div class="divider"></div>
         
         <a href="#" class="nav-item disabled" title="用户页面 (开发中)">
@@ -75,11 +80,12 @@ const closeWelcomeModal = () => {
           <h2>欢迎使用私人助理</h2>
         </div>
         <div class="welcome-body">
-          <p>这是一个专为提升效率与记录生活打造的本地化数字空间。主要包含以下三个核心模块：</p>
+          <p>这是一个专为提升效率与记录生活打造的本地化数字空间。主要包含以下四个核心模块：</p>
           <ul>
-            <li><strong>📅 月历版面：</strong>点击日期网格即可进入详情，支持富文本日志撰写与每日待办事项管理。</li>
+            <li><strong>📅 月历版面：</strong>点击日期网格进入详情，支持富文本日志撰写与每日待办。右上角支持切换至“全局待办”一览。</li>
             <li><strong>📁 项目版面：</strong>用于管理长期任务，内置可持久化运行的独立计时器，切换页面不中断。</li>
-            <li><strong>📝 博客版面：</strong>提供纯粹的写作环境，适合沉淀深度思考与长篇笔记。</li>
+            <li><strong>📝 博客版面：</strong>提供纯粹的写作环境，支持文章置顶，适合沉淀深度思考与长篇笔记。</li>
+            <li><strong>💡 灵感白板：</strong>无边界的数字点阵墙，在空白处点击即可输入，支持自由拖拽排版，随时捕捉灵感。</li>
           </ul>
           <p class="notice-text">注：当前版本所有数据均安全地加密存储于您的浏览器本地缓存中。</p>
         </div>

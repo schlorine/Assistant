@@ -58,10 +58,6 @@ const goBack = () => {
 .title-input { font-size: 2rem; font-weight: bold; border: none; border-bottom: 1px solid #e5e7eb; padding: 24px 32px; outline: none; color: #111827; }
 .title-input::placeholder { color: #d1d5db; }
 
-.quill-wrapper { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-:deep(.ql-toolbar) { border: none !important; border-bottom: 1px solid #e5e7eb !important; padding: 12px 32px !important; background: #f9fafb; }
-:deep(.ql-container) { border: none !important; font-size: 1.1rem; }
-:deep(.ql-editor) { padding: 32px !important; line-height: 1.8; color: #374151; }
-
+.quill-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .not-found { text-align: center; margin-top: 100px; color: #6b7280; font-size: 1.2rem; }
 </style>

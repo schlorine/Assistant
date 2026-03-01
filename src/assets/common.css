@@ -72,3 +72,69 @@
 .search-input:focus, .modal-input:focus, .todo-input:focus, .edit-title-input:focus {
   border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+/* ==========================================
+   5. 统一富文本编辑器 (Quill Editor) 样式
+   ========================================== */
+/* 重置顶部工具栏：去边框、加微灰底色、变圆角 */
+.ql-toolbar.ql-snow {
+    border: none !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 10px 16px !important;
+    background-color: #f9fafb;
+    border-radius: 8px 8px 0 0;
+    font-family: inherit;
+}
+
+/* 工具栏图标的悬浮高亮颜色改为主题蓝 */
+.ql-snow .ql-picker-label:hover,
+.ql-snow .ql-picker-label.ql-active,
+.ql-snow .ql-picker-item:hover,
+.ql-snow .ql-picker-item.ql-selected,
+.ql-snow button:hover,
+.ql-snow button.ql-active {
+    color: #3b82f6 !important;
+}
+
+.ql-snow .ql-picker-label:hover .ql-stroke,
+.ql-snow .ql-picker-label.ql-active .ql-stroke,
+.ql-snow .ql-picker-item:hover .ql-stroke,
+.ql-snow .ql-picker-item.ql-selected .ql-stroke,
+.ql-snow button:hover .ql-stroke,
+.ql-snow button.ql-active .ql-stroke {
+    stroke: #3b82f6 !important;
+}
+
+.ql-snow .ql-picker-label:hover .ql-fill,
+.ql-snow .ql-picker-label.ql-active .ql-fill,
+.ql-snow .ql-picker-item:hover .ql-fill,
+.ql-snow .ql-picker-item.ql-selected .ql-fill,
+.ql-snow button:hover .ql-fill,
+.ql-snow button.ql-active .ql-fill {
+    fill: #3b82f6 !important;
+}
+
+/* 重置输入框主体：去边框、统一字体与字号、限制高度并开启内部滚动 */
+.ql-container.ql-snow {
+    border: none !important;
+    font-size: 1.05rem !important;
+    font-family: inherit !important;
+    border-radius: 0 0 8px 8px;
+    flex: 1 !important;
+    /* 强制占据工具栏下方的所有剩余空间 */
+    min-height: 0 !important;
+    /* 关键约束：防止被超长内容无限撑开，强制在内部生成滚动条 */
+}
+
+/* 还原为正常状态，去掉 .ql-editor > *:last-child 的那段代码 */
+.ql-editor {
+    padding: 20px 24px !important;
+    line-height: 1.8 !important;
+    color: #374151 !important;
+}
+
+/* 占位符(Placeholder)样式统一 */
+.ql-editor.ql-blank::before {
+    color: #9ca3af !important;
+    font-style: normal !important;
+    left: 24px !important;
+}

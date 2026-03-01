@@ -3,10 +3,12 @@ import { ref } from 'vue'
 import { useJournalStore } from '../stores/journalStore'
 import { useProjectStore } from '../stores/projectStore'
 import { useBlogStore } from '../stores/blogStore'
+import { useWhiteboardStore } from '../stores/whiteboardStore' // 新增
 
 const journalStore = useJournalStore()
 const projectStore = useProjectStore()
 const blogStore = useBlogStore()
+const whiteboardStore = useWhiteboardStore() // 新增
 
 // 保留先前的 Markdown 导出逻辑
 const exportToMarkdown = () => {
@@ -79,12 +81,12 @@ const exportToMarkdown = () => {
 // ---------------- 新增：JSON 备份与恢复逻辑 ----------------
 
 const exportToJson = () => {
-  // 把三大核心模块的数据原样打包进一个对象
   const backupData = {
     journalRecords: journalStore.records,
     projects: projectStore.projects,
     timers: projectStore.timers,
-    blogs: blogStore.blogs
+    blogs: blogStore.blogs,
+    whiteboardItems: whiteboardStore.items // 补充白板数据
   }
   
   const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json;charset=utf-8' })
@@ -117,8 +119,8 @@ const handleFileUpload = (event: Event) => {
       const content = e.target?.result as string
       const parsedData = JSON.parse(content)
 
-      // 简单嗅探一下文件结构，防止传错文件
-      if (parsedData.journalRecords || parsedData.projects || parsedData.blogs) {
+      // 简单嗅探一下文件结构，防止传错文件 (追加对 whiteboardItems 的判断)
+      if (parsedData.journalRecords || parsedData.projects || parsedData.blogs || parsedData.whiteboardItems) {
         if (window.confirm('危险操作提示：\n导入备份将不可逆地覆盖当前系统内的所有数据！\n确定要继续吗？')) {
           
           // 将解析出的数据分发写入本地缓存
@@ -126,12 +128,12 @@ const handleFileUpload = (event: Event) => {
           if (parsedData.projects) localStorage.setItem('projects', JSON.stringify(parsedData.projects))
           if (parsedData.timers) localStorage.setItem('timers', JSON.stringify(parsedData.timers))
           if (parsedData.blogs) localStorage.setItem('blogs', JSON.stringify(parsedData.blogs))
+          if (parsedData.whiteboardItems) localStorage.setItem('whiteboardItems', JSON.stringify(parsedData.whiteboardItems)) // 补充恢复逻辑
           
-          // 确保新用户引导不会在恢复数据后弹出
           localStorage.setItem('hasVisited', 'true')
           
           alert('数据恢复成功！系统即将重新加载。')
-          window.location.reload() // 强制刷新网页，重新初始化所有模块
+          window.location.reload()
         }
       } else {
         alert('导入失败：未识别到有效的数据备份格式，请检查文件是否正确。')

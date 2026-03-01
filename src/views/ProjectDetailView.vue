@@ -195,7 +195,6 @@ const goBack = () => {
 
 .content-split { display: flex; gap: 24px; flex: 1; min-height: 0; }
 .editor-section { flex: 7; display: flex; flex-direction: column; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-:deep(.ql-container) { flex: 1; font-size: 1rem; }
 
 .timer-section { flex: 3; background: #f9fafb; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; overflow-y: auto; }
 .input-group { display: flex; gap: 8px; margin-bottom: 20px; }

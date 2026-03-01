@@ -39,10 +39,15 @@ const router = createRouter({
     component: () => import('../views/BlogDetailView.vue')
     },
     {
-  path: '/settings',
-  name: 'settings',
-  component: () => import('../views/SettingsView.vue')
-}
+      path: '/settings',
+      name: 'settings',
+      component: () => import('../views/SettingsView.vue')
+    },
+    {
+      path: '/whiteboard',
+      name: 'whiteboard',
+      component: () => import('../views/WhiteboardView.vue')
+    }
   ]
 })
 
