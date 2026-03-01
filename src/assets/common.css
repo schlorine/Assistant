@@ -138,3 +138,73 @@
     font-style: normal !important;
     left: 24px !important;
 }
+/* ==========================================
+   6. 移动端响应式适配 (Mobile Responsive)
+   ========================================== */
+@media (max-width: 768px) {
+
+    /* 1. 缩减全局安全边距，为内容腾出空间 */
+    .page-layout-scroll,
+    .page-layout-full,
+    .layout-wrapper {
+        padding: 12px;
+    }
+
+    /* 解除全屏高度限制，允许在手机上自由滚动 */
+    .page-layout-full,
+    .layout-wrapper {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    /* 2. 重置头部布局结构 */
+    .page-header-common,
+    .page-header,
+    .header-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    /* 3. 网格降级：将多列强行拉平为单列 */
+    .project-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* 4. 分栏降级：详情页 (项目详情、单日详情) 左右分栏变上下排版 */
+    .content-split {
+        flex-direction: column;
+    }
+
+    .editor-section,
+    .timer-section,
+    .todo-section {
+        flex: none !important;
+        width: 100%;
+    }
+
+    /* 5. 弹窗瘦身 */
+    .modal-content,
+    .welcome-modal {
+        width: 95%;
+        padding: 16px;
+    }
+
+    /* 6. 解决触屏无 hover 问题：强制显现所有隐藏的操作按钮 */
+    .action-buttons,
+    .timer-actions,
+    .todo-actions,
+    .delete-btn {
+        opacity: 1 !important;
+    }
+
+    /* 调整富文本编辑器在手机上的内边距 */
+    .ql-editor {
+        padding: 12px !important;
+    }
+}

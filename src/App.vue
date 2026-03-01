@@ -134,4 +134,100 @@ body { margin: 0; padding: 0; background-color: #f3f4f6; }
 .welcome-footer { padding: 16px 32px 24px; display: flex; justify-content: flex-end; background: #f9fafb; border-top: 1px solid #f3f4f6; }
 .start-btn { padding: 10px 24px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background-color 0.2s; }
 .start-btn:hover { background-color: #2563eb; }
+
+/* ==========================================
+   移动端全局导航适配 (Mobile Bottom Tab Bar)
+   ========================================== */
+@media (max-width: 768px) {
+  /* 补充：彻底锁定手机端系统级的原生反弹和多余边距 */
+  :global(body) {
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* 修改：让 App 成为接管全站的完美容器 */
+  .app-layout {
+    flex-direction: column;
+    padding-bottom: 65px;
+    height: 100dvh; /* 严格等于屏幕动态可视高度 */
+    box-sizing: border-box; /* 核心魔法：让底部的 65px 向内挤压，绝不撑破屏幕！ */
+    overflow-y: auto; /* 允许超出屏幕的非日历版面（如博客）在这里正常滑动 */
+    overflow-x: hidden;
+  }
+  /* 2. 侧边栏变形为底部固定导航栏 */
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw !important; /* 强制覆盖原本的展开/收起宽度 */
+    height: 65px;
+    flex-direction: row;
+    border-right: none;
+    border-top: 1px solid #e5e7eb;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px); /* 增加高级的毛玻璃背景效果 */
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  /* 3. 隐藏电脑端特有的 Logo 和折叠按钮 */
+  .sidebar-header {
+    display: none; 
+  }
+
+  /* 4. 导航条目横向均匀排列 */
+  .sidebar-nav {
+    flex-direction: row;
+    padding: 0;
+    gap: 0;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  /* 5. 单个按钮结构重组：上图标、下文字 */
+  .nav-item {
+    flex-direction: column;
+    padding: 6px 0;
+    gap: 4px;
+    justify-content: center;
+    border-radius: 0;
+    flex: 1;
+  }
+  
+  /* 禁用触屏下的悬浮变色，防止点击后颜色残留 */
+  .nav-item:hover:not(.disabled) {
+    background-color: transparent; 
+  }
+  
+  .router-link-active {
+    background-color: transparent;
+    color: #3b82f6;
+  }
+
+  /* 6. 图标与文字的精细微调 */
+  .icon {
+    font-size: 1.4rem;
+    min-width: auto;
+    margin: 0;
+  }
+  
+  .text {
+    margin-left: 0 !important;
+    font-size: 0.65rem;
+    display: block !important; /* 强制显示文字，无视 isCollapsed 状态 */
+    font-weight: 500;
+  }
+
+  /* 7. 隐藏不需要的占位元素（分割线和未开发的用户页）以节省空间 */
+  .divider, .nav-item.disabled {
+    display: none;
+  }
+  
+  /* 8. 修复开场动画在手机上的比例 */
+  .greeting {
+    font-size: 1.5rem;
+    flex-wrap: wrap;
+  }
+}
 </style>
+
