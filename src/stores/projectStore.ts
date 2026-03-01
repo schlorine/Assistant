@@ -5,8 +5,10 @@ export const useProjectStore = defineStore('project', () => {
   const savedProjects = localStorage.getItem('projects')
   const savedTimers = localStorage.getItem('timers')
 
-  const projects = ref<{ id: number; title: string; createDate: string; content?: string; activeTimerId?: number }[]>(
-    savedProjects ? JSON.parse(savedProjects) : []
+// 1. 在项目数据初始化时，兼容旧数据并赋予默认状态 'not-started'
+  const parsedProjects = savedProjects ? JSON.parse(savedProjects) : []
+  const projects = ref<{ id: number; title: string; createDate: string; content?: string; activeTimerId?: number; status: 'not-started' | 'in-progress' | 'completed' }[]>(
+    parsedProjects.map((p: any) => ({ ...p, status: p.status || 'not-started' }))
   )
 
   const timers = ref<Record<number, { id: number; name: string; isRunning: boolean; startTime: number; elapsed: number }[]>>(
@@ -23,6 +25,7 @@ export const useProjectStore = defineStore('project', () => {
       title: '示例项目：前端架构构建',
       createDate: todayStr,
       content: '<h3>项目概览</h3><p>这是一个长期维度的示例项目。你可以在此拆解复杂的任务层级，或保存重要的技术参考链接。</p>',
+      status: 'not-started'
     })
     
     // 注入示例计时器
@@ -47,7 +50,8 @@ export const useProjectStore = defineStore('project', () => {
       id: newId,
       title: title,
       createDate: new Date().toISOString().split('T')[0]!,
-      content: ''
+      content: '',
+      status: 'not-started' // 新增这一行
     })
     timers.value[newId] = []
     return newId
@@ -83,6 +87,17 @@ export const useProjectStore = defineStore('project', () => {
     if (timer) timer.name = name
   }
 
+  const deleteTimer = (projectId: number, timerId: number) => {
+    if (timers.value[projectId]) {
+      timers.value[projectId] = timers.value[projectId].filter(t => t.id !== timerId)
+    }
+    // 如果删除的是当前正在展示的计时器，把 activeTimerId 置空
+    const project = projects.value.find(p => p.id === projectId)
+    if (project && project.activeTimerId === timerId) {
+      project.activeTimerId = undefined
+    }
+  }
+
   const toggleTimer = (projectId: number, timerId: number) => {
     const timer = timers.value[projectId]?.find(t => t.id === timerId)
     if (!timer) return
@@ -96,8 +111,14 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  const updateProjectStatus = (id: number, status: 'not-started' | 'in-progress' | 'completed') => {
+    const project = projects.value.find(p => p.id === id)
+    if (project) project.status = status
+  }
+  
   return { 
     projects, timers, addProject, deleteProject, updateProjectTitle, 
-    updateProjectContent, setActiveTimer, addTimer, updateTimerName, toggleTimer 
+    updateProjectContent, setActiveTimer, addTimer, updateTimerName,
+    toggleTimer, deleteTimer, updateProjectStatus 
   }
 })

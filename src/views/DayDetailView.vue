@@ -96,18 +96,33 @@ const goBack = () => {
           <button @click="handleAddTodo" class="add-btn">添加</button>
         </div>
         
-        <ul class="todo-list">
-          <li v-for="todo in currentRecord.todos" :key="todo.id" class="todo-item">
-            <input type="checkbox" v-model="todo.done" class="todo-checkbox" />
-            <span :class="{ 'text-strikethrough': todo.done }">{{ todo.text }}</span>
-          </li>
-        </ul>
+        <div class="todo-list">
+          <div v-for="todo in currentRecord.todos" :key="todo.id" class="todo-item">
+            <label class="todo-label">
+              <input type="checkbox" v-model="todo.done" />
+              <span :class="{ 'is-done': todo.done }">{{ todo.text }}</span>
+            </label>
+            <button class="delete-todo-btn" @click="store.deleteTodo(currentDate, todo.id)" title="删除该任务">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.todo-label { display: flex; align-items: center; gap: 8px; flex: 1; cursor: pointer; }
+.delete-todo-btn { background: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 4px; border-radius: 4px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: all 0.2s; }
+.todo-item:hover .delete-todo-btn { opacity: 1; }
+.delete-todo-btn:hover { color: #ef4444; background: #fee2e2; }
+
 .layout-wrapper {
   max-width: 1200px;
   margin: 0 auto;

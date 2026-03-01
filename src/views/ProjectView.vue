@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectStore } from '../stores/projectStore'
 
@@ -14,11 +14,25 @@ onMounted(() => {
 })
 onUnmounted(() => { clearInterval(intervalId) })
 
-// 自定义新建项目弹窗的状态控制
+// --- 状态筛选逻辑 ---
+// 默认勾选全部三种状态
+const statusFilters = ref(['not-started', 'in-progress', 'completed'])
+
+// 动态计算过滤后的项目列表
+const filteredProjects = computed(() => {
+  return store.projects.filter(p => statusFilters.value.includes(p.status || 'not-started'))
+})
+
+const getStatusText = (status: string) => {
+  if (status === 'in-progress') return '进行中'
+  if (status === 'completed') return '已完成'
+  return '未开始'
+}
+// --------------------
+
 const showCreateModal = ref(false)
 const newProjectTitle = ref('')
 
-// 唤起弹窗时清空上一次残余的输入
 const openCreateModal = () => {
   newProjectTitle.value = ''
   showCreateModal.value = true
@@ -72,7 +86,6 @@ const formatTime = (timer: any) => {
   return `${h}:${m}:${s}`
 }
 
-// 搞个小指令，确保弹窗弹出来的时候输入框能自动获取光标
 const vFocus = {
   mounted: (el: HTMLInputElement) => el.focus()
 }
@@ -80,13 +93,32 @@ const vFocus = {
 
 <template>
   <div class="project-container">
-    <div class="header-section">
+<div class="header-section">
       <h2>我的项目</h2>
-      <button class="create-btn" @click="openCreateModal">+ 创建新项目</button>
+      
+      <div class="header-actions">
+        <div class="filter-group">
+          <label class="filter-checkbox">
+            <input type="checkbox" value="not-started" v-model="statusFilters" />
+            未开始
+          </label>
+          <label class="filter-checkbox">
+            <input type="checkbox" value="in-progress" v-model="statusFilters" />
+            进行中
+          </label>
+          <label class="filter-checkbox">
+            <input type="checkbox" value="completed" v-model="statusFilters" />
+            已完成
+          </label>
+        </div>
+        
+        <div class="divider-vertical"></div>
+        <button class="create-btn" @click="openCreateModal">+ 创建新项目</button>
+      </div>
     </div>
 
     <div class="project-grid">
-      <div v-for="project in store.projects" :key="project.id" class="project-card" @click="openProjectDetail(project.id)">
+      <div v-for="project in filteredProjects" :key="project.id" class="project-card" @click="openProjectDetail(project.id)">
         <div class="card-content">
           <div class="card-header-row">
             <input 
@@ -109,7 +141,13 @@ const vFocus = {
               </svg>
             </button>
           </div>
-          <span class="project-date">建立时间: {{ project.createDate }}</span>
+          
+          <div class="card-meta-row">
+            <span class="project-date">建立时间: {{ project.createDate }}</span>
+            <span class="status-tag" :class="project.status || 'not-started'">
+              {{ getStatusText(project.status || 'not-started') }}
+            </span>
+          </div>
         </div>
         
         <div class="timer-placeholder" @click.stop>
@@ -129,6 +167,10 @@ const vFocus = {
             </button>
           </div>
         </div>
+      </div>
+      
+      <div v-if="filteredProjects.length === 0" class="empty-hint">
+        没有符合当前筛选条件的项目...
       </div>
     </div>
 
@@ -153,10 +195,25 @@ const vFocus = {
 
 <style scoped>
 .project-container { max-width: 900px; margin: 0 auto; padding: 20px; font-family: system-ui, -apple-system, sans-serif; }
-.header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #f3f4f6; }
-.header-section h2 { margin: 0; color: #1f2937; }
 .create-btn { padding: 10px 20px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
 .create-btn:hover { background-color: #2563eb; }
+
+.header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #f3f4f6; }
+.header-section h2 { margin: 0; color: #1f2937; }
+
+/* 右上角操作区布局 */
+.header-actions { display: flex; align-items: center; gap: 20px; }
+.filter-group { display: flex; gap: 16px; align-items: center; }
+.filter-checkbox { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.95rem; color: #6b7280; user-select: none; font-weight: 500; transition: color 0.2s; }
+.filter-checkbox:hover { color: #374151; }
+.filter-checkbox input { accent-color: #3b82f6; width: 16px; height: 16px; cursor: pointer; margin: 0; }
+
+/* 筛选区和按钮之间的细小分割线 */
+.divider-vertical { width: 1px; height: 24px; background-color: #e5e7eb; }
+
+.create-btn { padding: 8px 16px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+.create-btn:hover { background-color: #2563eb; }
+
 .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 .project-card {
   background-color: #ffffff;
@@ -169,7 +226,6 @@ const vFocus = {
   justify-content: space-between;
   min-height: 180px;
   transition: transform 0.2s, box-shadow 0.2s;
-  /* 强行开启 GPU 硬件加速图层，规避渲染闪烁 */
   transform: translateZ(0);
   backface-visibility: hidden;
 }
@@ -180,37 +236,28 @@ const vFocus = {
 .project-title:hover { background-color: #f3f4f6; color: #3b82f6; }
 .edit-title-input { flex: 1; font-size: 1.1rem; padding: 4px; border: 1px solid #3b82f6; border-radius: 4px; outline: none; }
 
-/* 调整后的图标删除按钮样式 */
 .icon-btn.delete-btn { background: transparent; color: #9ca3af; border: none; padding: 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; margin-top: -2px; }
 .icon-btn.delete-btn:hover { background: #fee2e2; color: #ef4444; }
 
+/* 卡片内部日期和标签样式 */
+.card-meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
 .project-date { font-size: 0.875rem; color: #6b7280; margin-left: 2px; }
+.status-tag { font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; font-weight: 600; }
+.status-tag.not-started { background-color: #f3f4f6; color: #6b7280; }
+.status-tag.in-progress { background-color: #dbeafe; color: #1d4ed8; }
+.status-tag.completed { background-color: #d1fae5; color: #047857; }
 
 .timer-placeholder { margin-top: 16px; padding: 12px; background-color: #f9fafb; border-radius: 6px; border: 1px dashed #d1d5db; display: flex; flex-direction: column; gap: 8px; }
-.timer-select {
-  width: 100%;
-  padding: 6px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  outline: none;
-  /* 锁定背景色与颜色模式，阻断系统级主题的渲染干扰 */
-  background-color: #ffffff;
-  color: #1f2937;
-  color-scheme: light;
-}
-/* 显式声明下拉列表内部选项的背景 */
-.timer-select option {
-  background-color: #ffffff;
-  color: #1f2937;
-}
+.timer-select { width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; outline: none; background-color: #ffffff; color: #1f2937; color-scheme: light; }
+.timer-select option { background-color: #ffffff; color: #1f2937; }
 .quick-timer-display { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
 .time-text { font-family: monospace; font-size: 1.2rem; font-weight: bold; color: #4b5563; }
 .time-text.running { color: #10b981; }
 .toggle-btn { padding: 4px 12px; border: 1px solid #d1d5db; background: white; border-radius: 4px; cursor: pointer; font-size: 0.875rem; transition: background 0.2s; }
 .toggle-btn:hover { background: #f3f4f6; }
 
-/* 弹窗专区样式 */
+.empty-hint { grid-column: 1 / -1; text-align: center; color: #9ca3af; padding: 40px; font-size: 1.1rem; }
+
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(2px); }
 .modal-content { background: #ffffff; padding: 24px; border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); animation: modalFadeIn 0.2s ease-out; }
 @keyframes modalFadeIn { from { opacity: 0; transform: translateY(-10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }

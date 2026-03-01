@@ -51,5 +51,10 @@ export const useJournalStore = defineStore('journal', () => {
     record.todos.push({ id: Date.now(), text, done: false })
   }
 
-  return { records, getRecord, updateContent, addTodo }
+  const deleteTodo = (date: string, todoId: number) => {
+    const record = getRecord(date)
+    record.todos = record.todos.filter(t => t.id !== todoId)
+  }
+
+  return { records, getRecord, updateContent, addTodo, deleteTodo }
 })
