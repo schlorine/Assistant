@@ -1,0 +1,74 @@
+/* src/assets/common.css */
+
+/* ==========================================
+   1. 页面级基础布局
+   ========================================== */
+/* 滚动总览页容器 */
+.project-container, .calendar-wrapper, .blog-container, .settings-container {
+  max-width: 900px; margin: 0 auto; padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+/* 全屏高度详情页容器 */
+.layout-wrapper {
+  max-width: 1200px; margin: 0 auto; padding: 20px;
+  height: calc(100vh - 100px); display: flex; flex-direction: column;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* ==========================================
+   2. 统一页面头部布局
+   ========================================== */
+.header-section, .page-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb;
+}
+.header-section { border-bottom-width: 2px; border-color: #f3f4f6; }
+.header-section h2, .page-header h2 { margin: 0; color: #1f2937; }
+
+/* ==========================================
+   3. 通用交互组件 (按钮)
+   ========================================== */
+/* 主色调实心按钮 */
+.create-btn, .add-btn, .action-btn.confirm, .start-btn {
+  background-color: #3b82f6; color: white; border: none; border-radius: 6px;
+  cursor: pointer; transition: background-color 0.2s; font-weight: 600;
+}
+.create-btn:hover, .add-btn:hover, .action-btn.confirm:hover, .start-btn:hover { background-color: #2563eb; }
+
+/* 极简返回按钮 (<) */
+.back-btn {
+  background: transparent; border: none; color: #9ca3af; font-size: 1.5rem;
+  cursor: pointer; padding: 0 8px; transition: color 0.2s; font-family: monospace;
+}
+.back-btn:hover { color: #4b5563; }
+
+/* 基础图标按钮 (透明背景，无边框，悬浮高亮) */
+.icon-btn {
+  background: transparent; border: none; outline: none; color: #9ca3af;
+  padding: 6px; border-radius: 6px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; transition: all 0.2s ease;
+}
+.icon-btn:hover { background-color: #f3f4f6; color: #3b82f6; }
+.icon-btn.delete-btn:hover { background-color: #fee2e2; color: #ef4444; }
+.icon-btn.edit-btn:hover { background-color: #eff6ff; color: #3b82f6; }
+
+/* ==========================================
+   4. 统一卡片与表单输入框
+   ========================================== */
+/* 基础白底悬浮卡片 */
+.project-card, .blog-card, .settings-card {
+  background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px;
+  padding: 20px; transition: transform 0.2s, box-shadow 0.2s;
+}
+.project-card:hover, .blog-card:hover {
+  transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: #93c5fd;
+}
+
+/* 基础输入框 (描边、聚焦发光) */
+.search-input, .modal-input, .todo-input, .edit-title-input {
+  border: 1px solid #d1d5db; border-radius: 6px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;
+}
+.search-input:focus, .modal-input:focus, .todo-input:focus, .edit-title-input:focus {
+  border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}

@@ -56,5 +56,14 @@ export const useJournalStore = defineStore('journal', () => {
     record.todos = record.todos.filter(t => t.id !== todoId)
   }
 
-  return { records, getRecord, updateContent, addTodo, deleteTodo }
+  // 新增：重命名待办事项
+  const updateTodoText = (date: string, todoId: number, newText: string) => {
+    const record = getRecord(date)
+    const todo = record.todos.find(t => t.id === todoId)
+    if (todo) {
+      todo.text = newText
+    }
+  }
+
+  return { records, getRecord, updateContent, addTodo, deleteTodo, updateTodoText }
 })

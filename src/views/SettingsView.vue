@@ -188,14 +188,7 @@ const handleFileUpload = (event: Event) => {
 </template>
 
 <style scoped>
-.settings-container { max-width: 800px; margin: 0 auto; padding: 20px 40px; font-family: system-ui, -apple-system, sans-serif; }
-.header-section { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 2px solid #f3f4f6; }
-.header-section h2 { margin: 0; color: #1f2937; font-size: 1.8rem; }
-
 .settings-list { display: flex; flex-direction: column; gap: 24px; }
-.settings-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-
-/* 给予危险操作区域一定的视觉警示 */
 .settings-card.danger-zone { border-color: #fca5a5; background: #fffcfc; }
 
 .setting-item { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
@@ -203,13 +196,25 @@ const handleFileUpload = (event: Event) => {
 .setting-info p { margin: 0; color: #4b5563; font-size: 0.95rem; line-height: 1.5; }
 
 .btn-group { display: flex; gap: 12px; }
-
-.action-btn { padding: 10px 20px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; white-space: nowrap; }
-.action-btn:hover { background-color: #2563eb; }
+.action-btn { padding: 10px 20px; white-space: nowrap; }
 
 .outline-btn { background-color: transparent; color: #3b82f6; border: 1px solid #3b82f6; }
 .outline-btn:hover { background-color: #eff6ff; }
 
 .danger-btn { background-color: #ef4444; }
 .danger-btn:hover { background-color: #dc2626; }
+
+/* 补充丢失的按钮基础样式 */
+.action-btn { 
+  padding: 10px 20px; background-color: #3b82f6; color: white; 
+  border: none; border-radius: 6px; font-weight: 600; 
+  cursor: pointer; transition: background-color 0.2s; white-space: nowrap; 
+}
+.action-btn:hover { background-color: #2563eb; }
+
+/* 覆盖特定按钮的颜色 */
+.outline-btn { background-color: transparent; color: #3b82f6; border: 1px solid #3b82f6; }
+.outline-btn:hover { background-color: #eff6ff; }
+.danger-btn { background-color: #ef4444; border: 1px solid #ef4444; }
+.danger-btn:hover { background-color: #dc2626; border-color: #dc2626; }
 </style>

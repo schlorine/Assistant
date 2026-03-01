@@ -28,7 +28,7 @@ const goBack = () => {
 <template>
   <div class="layout-wrapper" v-if="blog">
     <header class="page-header">
-      <button class="back-btn" @click="goBack">返回列表</button>
+      <button class="back-btn" @click="goBack" title="返回列表">&lt;</button>
       <span class="date-display">编辑于 {{ blog.date }}</span>
     </header>
 
@@ -52,10 +52,6 @@ const goBack = () => {
 </template>
 
 <style scoped>
-.layout-wrapper { max-width: 900px; margin: 0 auto; padding: 20px 40px; height: calc(100vh - 40px); display: flex; flex-direction: column; font-family: system-ui, -apple-system, sans-serif; }
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.back-btn { padding: 8px 16px; border: 1px solid #d1d5db; background: white; border-radius: 6px; cursor: pointer; font-size: 0.95rem; color: #374151; transition: background 0.2s; }
-.back-btn:hover { background: #f3f4f6; }
 .date-display { color: #9ca3af; font-size: 0.9rem; }
 
 .editor-container { flex: 1; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e5e7eb; }
@@ -63,7 +59,6 @@ const goBack = () => {
 .title-input::placeholder { color: #d1d5db; }
 
 .quill-wrapper { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-/* 覆盖编辑器默认样式，扩大写作区域内边距 */
 :deep(.ql-toolbar) { border: none !important; border-bottom: 1px solid #e5e7eb !important; padding: 12px 32px !important; background: #f9fafb; }
 :deep(.ql-container) { border: none !important; font-size: 1.1rem; }
 :deep(.ql-editor) { padding: 32px !important; line-height: 1.8; color: #374151; }
