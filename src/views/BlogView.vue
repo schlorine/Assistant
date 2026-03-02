@@ -42,11 +42,22 @@ const handleDelete = (id: number) => {
     store.deleteBlog(id)
   }
 }
+
+const showDeleteBlogModal = ref(false)
+const blogIdToDelete = ref<number | null>(null)
+
+const executeDeleteBlog = () => {
+  if (blogIdToDelete.value !== null) {
+    store.deleteBlog(blogIdToDelete.value)
+    showDeleteBlogModal.value = false
+    blogIdToDelete.value = null
+  }
+}
 </script>
 
 <template>
   <div class="blog-container">
-    <div class="header-section">
+    <div class="page-header">
       <h2>我的博客</h2>
       <div class="action-group">
         <input 
@@ -79,13 +90,23 @@ const handleDelete = (id: number) => {
           <button class="icon-btn pin-btn" :class="{ active: blog.id === store.pinnedBlogId }" @click.stop="store.togglePin(blog.id)" :title="blog.id === store.pinnedBlogId ? '取消置顶' : '置顶这篇'">
             <IconPin style="font-size: 18px;" />
           </button>
-          <button class="icon-btn delete-btn" @click.stop="handleDelete(blog.id)" title="删除文章">
+          <button class="icon-btn delete-btn" @click.stop="blogIdToDelete = blog.id; showDeleteBlogModal = true" title="删除文章">
             <IconDelete style="font-size: 18px;" />
           </button>
         </div>
       </div>
     </div>
   </div>
+  <div class="modal-overlay" v-if="showDeleteBlogModal">
+      <div class="modal-content">
+        <h3>删除文章</h3>
+        <p>确定要永久删除这篇文章吗？此操作不可逆，云端数据也将被立刻销毁。</p>
+        <div class="modal-actions">
+          <button class="cancel-btn" @click="showDeleteBlogModal = false">取消</button>
+          <button class="confirm-danger-btn" @click="executeDeleteBlog">确认删除</button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <style scoped>

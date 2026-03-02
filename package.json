@@ -11,6 +11,7 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.98.0",
     "pinia": "^3.0.4",
     "quill": "^2.0.3",
     "vditor": "^3.11.2",

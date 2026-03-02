@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useJournalStore } from '../stores/journalStore'
 import IconDelete from '../components/icons/IconDelete.vue'
@@ -9,14 +9,19 @@ const route = useRoute()
 const router = useRouter()
 const store = useJournalStore()
 
-// 获取当前路由中的日期并调取对应记录
 const currentDate = route.params.date as string
-const currentRecord = store.getRecord(currentDate)
 
-// 初始化编辑器内容
-const editorContent = ref(currentRecord.content)
+// 【核心修复 2】：改用 computed 建立响应式映射，防止 Store 刷新时脱钩
+const currentRecord = computed(() => store.getRecord(currentDate))
 
-// 监控输入框，数据变化时立即推送到 Store
+const editorContent = ref(currentRecord.value.content)
+
+watch(() => currentRecord.value.content, (newVal) => {
+  if (newVal && !editorContent.value) {
+    editorContent.value = newVal
+  }
+})
+
 watch(editorContent, (newVal) => {
   store.updateContent(currentDate, newVal)
 })
@@ -32,6 +37,14 @@ const handleAddTodo = () => {
 const goBack = () => {
   router.push('/')
 }
+
+// 【核心修复 3】：终极退出保险！
+// 监听组件的卸载动作，防止用户输入后“秒退”导致 watcher 来不及同步。
+onBeforeUnmount(() => {
+  if (editorContent.value !== currentRecord.value.content) {
+    store.updateContent(currentDate, editorContent.value)
+  }
+})
 </script>
 
 <template>
@@ -64,7 +77,7 @@ const goBack = () => {
         <div class="todo-list">
           <div v-for="todo in currentRecord.todos" :key="todo.id" class="todo-item">
             <label class="todo-label">
-              <input type="checkbox" v-model="todo.done" />
+              <input type="checkbox" v-model="todo.done" @change="store.updateTodoStatus(todo.id, todo.done)" />
               <span :class="{ 'is-done': todo.done }">{{ todo.text }}</span>
             </label>
             <button class="icon-btn delete-btn" @click="store.deleteTodo(currentDate, todo.id)" title="删除该任务">
@@ -78,6 +91,7 @@ const goBack = () => {
 </template>
 
 <style scoped>
+/* 原有样式保持完全不变 */
 .page-header { justify-content: flex-start; gap: 20px; }
 .date-title { margin: 0; color: #1f2937; }
 
@@ -101,16 +115,13 @@ const goBack = () => {
 .todo-item:hover .icon-btn.delete-btn { opacity: 1; }
 .icon-btn.delete-btn { opacity: 0; padding: 4px; }
 
-/* ================= 移动端细节适配 ================= */
 @media (max-width: 768px) {
-  /* 1. 抹除移动端多余的内边距和背景框，让待办列表自然铺开 */
   .todo-section {
     padding: 0;
     background: transparent;
     border: none;
     margin-top: 12px;
   }
-  
   .todo-title {
     margin-bottom: 12px;
   }

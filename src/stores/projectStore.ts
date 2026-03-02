@@ -1,124 +1,125 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
+import { supabase } from '../utils/supabase'
+import { useUserStore } from './userStore'
+import { getTodayYMD } from '../utils/timeFormat'
+
+export interface Project { id: number; title: string; createDate: string; content?: string; activeTimerId?: number; status: 'not-started' | 'in-progress' | 'completed' }
+export interface Timer { id: number; name: string; isRunning: boolean; startTime: number; elapsed: number }
 
 export const useProjectStore = defineStore('project', () => {
-  const savedProjects = localStorage.getItem('projects')
-  const savedTimers = localStorage.getItem('timers')
+  const projects = ref<Project[]>([])
+  const timers = ref<Record<number, Timer[]>>({})
+  const userStore = useUserStore()
 
-// 1. 在项目数据初始化时，兼容旧数据并赋予默认状态 'not-started'
-  const parsedProjects = savedProjects ? JSON.parse(savedProjects) : []
-  const projects = ref<{ id: number; title: string; createDate: string; content?: string; activeTimerId?: number; status: 'not-started' | 'in-progress' | 'completed' }[]>(
-    parsedProjects.map((p: any) => ({ ...p, status: p.status || 'not-started' }))
-  )
-
-  const timers = ref<Record<number, { id: number; name: string; isRunning: boolean; startTime: number; elapsed: number }[]>>(
-    savedTimers ? JSON.parse(savedTimers) : {}
-  )
-
-  // 首次访问初始化示例项目
-  if (!savedProjects) {
-    const todayStr = new Date().toISOString().split('T')[0]!
-    const sampleProjectId = 1
-    
-    projects.value.push({
-      id: sampleProjectId,
-      title: '示例项目：前端架构构建',
-      createDate: todayStr,
-      content: '<h3>项目概览</h3><p>这是一个长期维度的示例项目。你可以在此拆解复杂的任务层级，或保存重要的技术参考链接。</p>',
-      status: 'not-started'
-    })
-    
-    // 注入示例计时器
-    timers.value[sampleProjectId] = [
-      { id: Date.now(), name: 'UI原型设计', isRunning: false, startTime: 0, elapsed: 3600000 }, // 预设 1 小时累计时长
-      { id: Date.now() + 1, name: '后端接口对接', isRunning: false, startTime: 0, elapsed: 0 }
-    ]
-    
-    // 默认展示第一个计时器
-    projects.value[0]!.activeTimerId = timers.value[sampleProjectId][0]!.id
-    
-    localStorage.setItem('projects', JSON.stringify(projects.value))
-    localStorage.setItem('timers', JSON.stringify(timers.value))
+  const fetchProjectsData = async () => {
+    if (!userStore.currentUser) return
+    const [projectsRes, timersRes] = await Promise.all([
+      supabase.from('projects').select('*').eq('user_id', userStore.currentUser.id).order('created_at', { ascending: true }),
+      supabase.from('timers').select('*').eq('user_id', userStore.currentUser.id)
+    ])
+    if (projectsRes.data) {
+      projects.value = projectsRes.data.map((p: any) => ({
+        id: p.id, title: p.title, createDate: p.create_date, content: p.content || '', status: p.status, activeTimerId: p.active_timer_id || undefined
+      }))
+    }
+    if (timersRes.data) {
+      const tempTimers: Record<number, Timer[]> = {}
+      timersRes.data.forEach((t: any) => {
+        if (!tempTimers[t.project_id]) tempTimers[t.project_id] = []
+        tempTimers[t.project_id]!.push({ id: t.id, name: t.name, isRunning: t.is_running, startTime: t.start_time, elapsed: t.elapsed })
+      })
+      timers.value = tempTimers
+    }
   }
 
-  watch(projects, (newVal) => { localStorage.setItem('projects', JSON.stringify(newVal)) }, { deep: true })
-  watch(timers, (newVal) => { localStorage.setItem('timers', JSON.stringify(newVal)) }, { deep: true })
+  watch(() => userStore.currentUser, (user) => {
+    if (user) fetchProjectsData()
+    else { projects.value = []; timers.value = {} }
+  }, { immediate: true })
 
   const addProject = (title: string) => {
-    const newId = projects.value.length ? Math.max(...projects.value.map(p => p.id)) + 1 : 1
-    projects.value.push({
-      id: newId,
-      title: title,
-      createDate: new Date().toISOString().split('T')[0]!,
-      content: '',
-      status: 'not-started' // 新增这一行
-    })
+    if (!userStore.currentUser) return null
+    const newId = Date.now()
+    projects.value.push({ id: newId, title: title, createDate: getTodayYMD(), content: '', status: 'not-started' })
     timers.value[newId] = []
+    supabase.from('projects').insert([{ id: newId, user_id: userStore.currentUser.id, title: title, create_date: getTodayYMD(), content: '', status: 'not-started' }]).then()
     return newId
   }
 
   const deleteProject = (id: number) => {
     projects.value = projects.value.filter(p => p.id !== id)
     delete timers.value[id]
+    if (userStore.currentUser) supabase.from('projects').delete().eq('id', id).eq('user_id', userStore.currentUser.id).then() // 【修复】
   }
 
   const updateProjectTitle = (id: number, title: string) => {
     const project = projects.value.find(p => p.id === id)
-    if (project) project.title = title
+    if (project) {
+      project.title = title
+      if (userStore.currentUser) supabase.from('projects').update({ title }).eq('id', id).then() // 【修复】
+    }
   }
 
   const updateProjectContent = (id: number, content: string) => {
     const project = projects.value.find(p => p.id === id)
-    if (project) project.content = content
-  }
-
-  const setActiveTimer = (projectId: number, timerId: number | undefined) => {
-    const project = projects.value.find(p => p.id === projectId)
-    if (project) project.activeTimerId = timerId
-  }
-
-  const addTimer = (projectId: number, name: string) => {
-    if (!timers.value[projectId]) timers.value[projectId] = []
-    timers.value[projectId].push({ id: Date.now(), name, isRunning: false, startTime: 0, elapsed: 0 })
-  }
-
-  const updateTimerName = (projectId: number, timerId: number, name: string) => {
-    const timer = timers.value[projectId]?.find(t => t.id === timerId)
-    if (timer) timer.name = name
-  }
-
-  const deleteTimer = (projectId: number, timerId: number) => {
-    if (timers.value[projectId]) {
-      timers.value[projectId] = timers.value[projectId].filter(t => t.id !== timerId)
-    }
-    // 如果删除的是当前正在展示的计时器，把 activeTimerId 置空
-    const project = projects.value.find(p => p.id === projectId)
-    if (project && project.activeTimerId === timerId) {
-      project.activeTimerId = undefined
-    }
-  }
-
-  const toggleTimer = (projectId: number, timerId: number) => {
-    const timer = timers.value[projectId]?.find(t => t.id === timerId)
-    if (!timer) return
-
-    if (timer.isRunning) {
-      timer.elapsed += Date.now() - timer.startTime
-      timer.isRunning = false
-    } else {
-      timer.startTime = Date.now()
-      timer.isRunning = true
+    if (project) {
+      project.content = content
+      if (userStore.currentUser) supabase.from('projects').update({ content }).eq('id', id).then() // 【修复】
     }
   }
 
   const updateProjectStatus = (id: number, status: 'not-started' | 'in-progress' | 'completed') => {
     const project = projects.value.find(p => p.id === id)
-    if (project) project.status = status
+    if (project) {
+      project.status = status
+      if (userStore.currentUser) supabase.from('projects').update({ status }).eq('id', id).then() // 【修复】
+    }
+  }
+
+  const setActiveTimer = (projectId: number, timerId: number | undefined) => {
+    const project = projects.value.find(p => p.id === projectId)
+    if (project) {
+      project.activeTimerId = timerId
+      if (userStore.currentUser) supabase.from('projects').update({ active_timer_id: timerId || null }).eq('id', projectId).then() // 【修复】
+    }
+  }
+
+  const addTimer = (projectId: number, name: string) => {
+    if (!userStore.currentUser) return
+    if (!timers.value[projectId]) timers.value[projectId] = []
+    const newTimer: Timer = { id: Date.now(), name, isRunning: false, startTime: 0, elapsed: 0 }
+    timers.value[projectId].push(newTimer)
+    supabase.from('timers').insert([{ id: newTimer.id, project_id: projectId, user_id: userStore.currentUser.id, name: newTimer.name, is_running: false, start_time: 0, elapsed: 0 }]).then()
+  }
+
+  const updateTimerName = (projectId: number, timerId: number, name: string) => {
+    const timer = timers.value[projectId]?.find(t => t.id === timerId)
+    if (timer) {
+      timer.name = name
+      if (userStore.currentUser) supabase.from('timers').update({ name }).eq('id', timerId).then() // 【修复】
+    }
+  }
+
+  const deleteTimer = (projectId: number, timerId: number) => {
+    if (timers.value[projectId]) timers.value[projectId] = timers.value[projectId].filter(t => t.id !== timerId)
+    const project = projects.value.find(p => p.id === projectId)
+    if (project && project.activeTimerId === timerId) {
+      project.activeTimerId = undefined
+      if (userStore.currentUser) supabase.from('projects').update({ active_timer_id: null }).eq('id', projectId).then()
+    }
+    if (userStore.currentUser) supabase.from('timers').delete().eq('id', timerId).then() // 【修复】
+  }
+
+  const toggleTimer = (projectId: number, timerId: number) => {
+    const timer = timers.value[projectId]?.find(t => t.id === timerId)
+    if (!timer) return
+    if (timer.isRunning) { timer.elapsed += Date.now() - timer.startTime; timer.isRunning = false } 
+    else { timer.startTime = Date.now(); timer.isRunning = true }
+    if (userStore.currentUser) {
+      supabase.from('timers').update({ is_running: timer.isRunning, start_time: timer.startTime, elapsed: timer.elapsed }).eq('id', timerId).then() // 【修复】
+    }
   }
   
-  return { 
-    projects, timers, addProject, deleteProject, updateProjectTitle, 
-    updateProjectContent, setActiveTimer, addTimer, updateTimerName,
-    toggleTimer, deleteTimer, updateProjectStatus 
-  }
+  return { projects, timers, fetchProjectsData, addProject, deleteProject, updateProjectTitle, updateProjectContent, setActiveTimer, addTimer, updateTimerName, toggleTimer, deleteTimer, updateProjectStatus }
 })

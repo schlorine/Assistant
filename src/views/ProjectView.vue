@@ -11,6 +11,15 @@ const store = useProjectStore()
 const currentTimestamp = ref(Date.now())
 let intervalId: number
 
+const projectToDelete = ref<number | null>(null) // 记录要删除的 ID
+
+const executeDeleteProject = () => {
+  if (projectToDelete.value !== null) {
+    store.deleteProject(projectToDelete.value)
+    projectToDelete.value = null // 关闭弹窗
+  }
+}
+
 onMounted(() => {
   intervalId = window.setInterval(() => { currentTimestamp.value = Date.now() }, 100)
 })
@@ -93,8 +102,8 @@ const getActiveTimer = (project: any) => {
 
 <template>
   <div class="project-container">
-<div class="header-section">
-      <h2>我的项目</h2>
+<div class="page-header">
+      <h2>项目看板</h2>
       
       <div class="header-actions">
         <div class="filter-group">
@@ -132,7 +141,7 @@ const getActiveTimer = (project: any) => {
             />
             <h3 v-else class="project-title" @click.stop="startEditTitle(project)" title="点击修改名称">{{ project.title }}</h3>
             
-            <button class="icon-btn delete-btn" @click.stop="handleDelete(project.id)" title="删除该项目">
+            <button class="icon-btn delete-btn" @click.stop="projectToDelete = project.id" title="删除该项目">
               <IconDelete style="font-size: 18px;" />
             </button>
           </div>
@@ -205,6 +214,16 @@ const getActiveTimer = (project: any) => {
         <div class="modal-actions">
           <button class="action-btn cancel" @click="showCreateModal = false">取消</button>
           <button class="action-btn confirm" @click="confirmCreateProject">确定</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay" v-if="projectToDelete !== null">
+      <div class="modal-content">
+        <h3>删除项目</h3>
+        <p>确定要永久删除这个项目吗？该项目下所有的**专属计时器记录**也会被一并销毁，且无法恢复。</p>
+        <div class="modal-actions">
+          <button class="cancel-btn" @click="projectToDelete = null">取消</button>
+          <button class="confirm-danger-btn" @click="executeDeleteProject">确认删除</button>
         </div>
       </div>
     </div>

@@ -17,6 +17,7 @@ const handleBlur = (item: any) => {
     store.removeItem(item.id)
   } else {
     item.isEditing = false
+    store.updateText(item.id, item.text) // 打字结束时，将最终文本推向云端
   }
 }
 
@@ -70,7 +71,7 @@ const clearBoard = () => {
 <template>
   <div class="layout-wrapper">
     <div class="page-header">
-      <h2 style="margin: 0; color: #1f2937;">灵感白板</h2>
+      <h2>灵感白板</h2>
       <button class="icon-btn delete-btn" @click="clearBoard" title="清空白板">
         <IconDelete style="font-size: 20px;" />
       </button>

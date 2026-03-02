@@ -318,7 +318,7 @@ const saveTodoText = (date: string, todoId: number) => {
               <div class="todo-content">
                 <input v-if="editingTodoId === todo.id" v-model="tempTodoText" @blur="saveTodoText(date, todo.id)" @keyup.enter="saveTodoText(date, todo.id)" class="edit-todo-input" v-focus />
                 <label v-else class="todo-label">
-                  <input type="checkbox" v-model="todo.done" class="todo-checkbox" />
+                  <input type="checkbox" v-model="todo.done" @change="store.updateTodoStatus(todo.id, todo.done)" class="todo-checkbox" />
                   <span :class="{ 'is-done': todo.done }">{{ todo.text }}</span>
                 </label>
               </div>
