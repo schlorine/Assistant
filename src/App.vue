@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from './stores/userStore'
 import IntroScreen from './components/IntroScreen.vue'
@@ -12,16 +12,21 @@ const isLoginRoute = computed(() => route.name === 'login')
 const isCollapsed = ref(false)
 const toggleSidebar = () => { isCollapsed.value = !isCollapsed.value }
 
-// 弹窗控制逻辑
 const showWelcomeModal = ref(false)
 const dontShowAgain = ref(false)
 
-// 监听用户登录状态，如果登录了且没有勾选过“不再显示”，则弹出引导
+// 【核心逻辑重构】：精准控制弹窗出现的时机
 watch(() => userStore.currentUser, (user) => {
+  // 只有在已登录，且不在登录页面的情况下
   if (user && !isLoginRoute.value) {
     const hideFlag = localStorage.getItem(`hideWelcome_${user.id}`)
+    
+    // 如果用户没点过“不再显示”
     if (hideFlag !== 'true') {
-      showWelcomeModal.value = true
+      // 延迟 2.3 秒弹出。这样正好卡在 IntroScreen (2秒) 渐隐消失的那一瞬间弹出！
+      setTimeout(() => {
+        showWelcomeModal.value = true
+      }, 2300)
     }
   } else {
     showWelcomeModal.value = false
@@ -37,7 +42,9 @@ const closeWelcomeModal = () => {
 </script>
 
 <template>
-  <router-view v-if="isLoginRoute"></router-view>
+  <div v-if="userStore.isLoading" class="global-init-mask"></div>
+
+  <router-view v-else-if="isLoginRoute"></router-view>
 
   <template v-else>
     <IntroScreen />
@@ -50,30 +57,24 @@ const closeWelcomeModal = () => {
             <span class="icon">{{ isCollapsed ? '▶' : '◀' }}</span>
           </button>
         </div>
-
         <nav class="sidebar-nav">
           <router-link to="/" class="nav-item" exact-active-class="router-link-active">
             <SidebarIcon name="calendar" />
             <span class="text" v-show="!isCollapsed">月历</span>
           </router-link>
-
           <router-link to="/projects" class="nav-item" active-class="router-link-active">
             <SidebarIcon name="project" />
             <span class="text" v-show="!isCollapsed">项目</span>
           </router-link>
-
           <router-link to="/blog" class="nav-item" active-class="router-link-active">
             <SidebarIcon name="blog" />
             <span class="text" v-show="!isCollapsed">博客</span>
           </router-link>
-
           <router-link to="/whiteboard" class="nav-item" active-class="router-link-active">
             <SidebarIcon name="whiteboard" />
             <span class="text" v-show="!isCollapsed">白板</span>
           </router-link>
-
           <div class="divider"></div>
-
           <router-link to="/settings" class="nav-item" active-class="router-link-active">
             <SidebarIcon name="settings" />
             <span class="text" v-show="!isCollapsed">设置</span>
@@ -126,6 +127,16 @@ const closeWelcomeModal = () => {
     </div>
   </template>
 </template>
+
+<style>
+/* 补充一个全屏白底遮罩，防止网速慢时露出奇怪的底色 */
+.global-init-mask {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: #f3f4f6; z-index: 999999;
+}
+body { margin: 0; padding: 0; background-color: #f3f4f6; }
+#app { max-width: none !important; padding: 0 !important; margin: 0 !important; width: 100vw; height: 100vh; display: block !important; }
+</style>
 
 <style>
 body { margin: 0; padding: 0; background-color: #f3f4f6; }

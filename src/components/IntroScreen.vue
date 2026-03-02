@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useUserStore } from '../stores/userStore'
 
 const show = ref(true)
-const username = 'schlorine'
+const userStore = useUserStore()
+const username = userStore.currentProfile?.username || 'master'
 
 onMounted(() => {
   // 总闸门定在 2.5 秒，加上 0.4 秒的离场过渡，整体控制在 3 秒内
@@ -153,3 +155,87 @@ onMounted(() => {
 .fade-scale-leave-active { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 .fade-scale-leave-to { opacity: 0; transform: scale(1.05); }
 </style>
+
+<!-- <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useUserStore } from '../stores/userStore'
+
+const userStore = useUserStore()
+const isVisible = ref(true)
+
+onMounted(() => {
+  // 设定开屏动画持续 2 秒后自动消失
+  setTimeout(() => {
+    isVisible.value = false
+  }, 2000)
+})
+</script>
+
+<template>
+  <transition name="fade">
+    <div v-if="isVisible" class="intro-screen">
+      <div class="intro-content">
+        <div class="intro-logo">✨</div>
+        
+        <h1 class="greeting">
+          欢迎回来，<span class="highlight">{{ userStore.currentProfile?.username || '探索者' }}</span>
+        </h1>
+        
+        <p class="subtitle">正在为您展开数字空间...</p>
+      </div>
+    </div>
+  </transition>
+</template>
+
+<style scoped>
+.intro-screen {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: #ffffff;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 99999; /* 确保层级在最顶端 */
+}
+
+.intro-content {
+  text-align: center;
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.intro-logo {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.greeting {
+  font-size: 2.2rem;
+  color: #111827;
+  margin-bottom: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.highlight {
+  color: #3b82f6; /* 主题蓝 */
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+/* Vue 的 Transition 组件专用的渐隐动画 */
+.fade-leave-active { transition: opacity 0.6s ease; }
+.fade-leave-to { opacity: 0; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+</style> -->
