@@ -3,12 +3,8 @@ import { ref } from 'vue'
 import { useWhiteboardStore } from '../stores/whiteboardStore'
 import IconDelete from '../components/icons/IconDelete.vue'
 
-const store = useWhiteboardStore()
 
-// 自动对焦指令，确保刚生成的文本框直接可以打字
-const vFocus = {
-  mounted: (el: HTMLTextAreaElement) => el.focus()
-}
+const store = useWhiteboardStore()
 
 // 点击空白处生成新文本框
 const handleBoardClick = (e: MouseEvent) => {

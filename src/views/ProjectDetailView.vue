@@ -2,13 +2,13 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProjectStore } from '../stores/projectStore'
-import { QuillEditor } from '@vueup/vue-quill'
 import IconDelete from '../components/icons/IconDelete.vue'
 import IconEdit from '../components/icons/IconEdit.vue'
 import IconStatusNotStarted from '../components/icons/IconStatusNotStarted.vue'
 import IconStatusInProgress from '../components/icons/IconStatusInProgress.vue'
 import IconStatusCompleted from '../components/icons/IconStatusCompleted.vue'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import { formatTimerDisplay } from '../utils/timeFormat'
+import MarkdownEditor from '../components/MarkdownEditor.vue'
 
 // 添加控制计时器重命名的逻辑
 const editingTimerId = ref<number | null>(null)
@@ -76,18 +76,6 @@ const handleAddTimer = () => {
   }
 }
 
-const formatTime = (timer: { isRunning: boolean; elapsed: number; startTime: number }) => {
-  // 加上 Math.max(0, ...) 彻底掐断出现负数的可能
-  const activeTime = Math.max(0, currentTimestamp.value - timer.startTime)
-  const totalMs = timer.isRunning ? timer.elapsed + activeTime : timer.elapsed
-    
-  const totalSeconds = Math.floor(totalMs / 1000)
-  const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
-  const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
-  const s = String(totalSeconds % 60).padStart(2, '0')
-  return `${h}:${m}:${s}`
-}
-
 const goBack = () => {
   router.back()
 }
@@ -121,7 +109,10 @@ const goBack = () => {
     </header>
     <div class="content-split">
       <div class="editor-section">
-        <QuillEditor theme="snow" v-model:content="editorContent" contentType="html" />
+        <MarkdownEditor 
+          v-model="editorContent" 
+          placeholder="开始撰写..." 
+        />
       </div>
 
       <div class="timer-section">
@@ -155,7 +146,7 @@ const goBack = () => {
               </div>
               </div>
               <div class="timer-display" :class="{ running: timer.isRunning }">
-                {{ formatTime(timer) }}
+                {{ formatTimerDisplay(timer, currentTimestamp) }}
               </div>
             </div>
             <button 

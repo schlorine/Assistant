@@ -2,8 +2,7 @@
 import { ref, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBlogStore } from '../stores/blogStore'
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import MarkdownEditor from '../components/MarkdownEditor.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -59,10 +58,8 @@ onUnmounted(() => {
         placeholder="输入文章标题..."
       />
       <div class="quill-wrapper">
-        <QuillEditor 
-          theme="snow" 
-          v-model:content="editorContent" 
-          contentType="html" 
+        <MarkdownEditor 
+          v-model="editorContent" 
           placeholder="开始撰写..." 
         />
       </div>

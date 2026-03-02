@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectStore } from '../stores/projectStore'
 import IconDelete from '../components/icons/IconDelete.vue'
+import { formatTimerDisplay } from '../utils/timeFormat'
 
 const router = useRouter()
 const store = useProjectStore()
@@ -88,20 +89,6 @@ const getActiveTimer = (project: any) => {
   return store.timers[project.id]?.find(t => t.id === project.activeTimerId)
 }
 
-const formatTime = (timer: any) => {
-  if (!timer) return '00:00:00'
-  const activeTime = Math.max(0, currentTimestamp.value - timer.startTime)
-  const totalMs = timer.isRunning ? timer.elapsed + activeTime : timer.elapsed
-  const totalSeconds = Math.floor(totalMs / 1000)
-  const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
-  const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
-  const s = String(totalSeconds % 60).padStart(2, '0')
-  return `${h}:${m}:${s}`
-}
-
-const vFocus = {
-  mounted: (el: HTMLInputElement) => el.focus()
-}
 </script>
 
 <template>
@@ -163,7 +150,7 @@ const vFocus = {
           <div class="quick-timer-display" v-if="getActiveTimer(project)">
             <div class="time-clickable" @click="toggleTimerSelect(project.id)">
               <span class="time-text" :class="{ running: getActiveTimer(project)?.isRunning }">
-                {{ formatTime(getActiveTimer(project)) }}
+                {{ formatTimerDisplay(getActiveTimer(project), currentTimestamp)}}
               </span>
               
               <div class="timer-dropdown" v-if="activeDropdownProjectId === project.id">

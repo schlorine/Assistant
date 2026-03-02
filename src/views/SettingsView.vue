@@ -4,6 +4,7 @@ import { useJournalStore } from '../stores/journalStore'
 import { useProjectStore } from '../stores/projectStore'
 import { useBlogStore } from '../stores/blogStore'
 import { useWhiteboardStore } from '../stores/whiteboardStore' // 新增
+import { formatMsToTime } from '../utils/timeFormat'
 
 const journalStore = useJournalStore()
 const projectStore = useProjectStore()
@@ -47,11 +48,7 @@ const exportToMarkdown = () => {
     if (projTimers.length > 0) {
       mdContent += '**专属计时器记录：**\n'
       projTimers.forEach(timer => {
-        const totalSeconds = Math.floor(timer.elapsed / 1000)
-        const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
-        const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
-        const s = String(totalSeconds % 60).padStart(2, '0')
-        mdContent += `- ${timer.name}: ${h}:${m}:${s}\n`
+        mdContent += `- ${timer.name}: ${formatMsToTime(timer.elapsed)}\n`
       })
       mdContent += '\n'
     }

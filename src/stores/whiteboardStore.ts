@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
+import { usePersistedRef } from '../utils/storage'
 
 export interface WhiteboardItem {
   id: number
@@ -10,14 +11,8 @@ export interface WhiteboardItem {
 }
 
 export const useWhiteboardStore = defineStore('whiteboard', () => {
-  const savedItems = localStorage.getItem('whiteboardItems')
-  const items = ref<WhiteboardItem[]>(savedItems ? JSON.parse(savedItems) : [])
-
-  // 持久化存储
-  watch(items, (newVal) => {
-    localStorage.setItem('whiteboardItems', JSON.stringify(newVal))
-  }, { deep: true })
-
+  const items = usePersistedRef<WhiteboardItem[]>('whiteboardItems', [])
+  
   // 在指定坐标添加新文本块
   const addItem = (x: number, y: number) => {
     // 将现有的编辑状态全部关闭

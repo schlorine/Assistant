@@ -2,9 +2,8 @@
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useJournalStore } from '../stores/journalStore'
-import { QuillEditor } from '@vueup/vue-quill'
 import IconDelete from '../components/icons/IconDelete.vue'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import MarkdownEditor from '../components/MarkdownEditor.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -44,11 +43,9 @@ const goBack = () => {
 
     <div class="content-split">
       <div class="editor-section">
-        <QuillEditor 
-          theme="snow" 
-          v-model:content="editorContent" 
-          contentType="html" 
-          placeholder="记录今天的思考与见闻..." 
+        <MarkdownEditor 
+          v-model="editorContent" 
+          placeholder="开始撰写..." 
         />
       </div>
 

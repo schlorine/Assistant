@@ -211,8 +211,6 @@ const saveTodoText = (date: string, todoId: number) => {
   }
   editingTodoId.value = null
 }
-
-const vFocus = { mounted: (el: HTMLInputElement) => el.focus() }
 </script>
 
 <template>
