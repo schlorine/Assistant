@@ -103,4 +103,19 @@ const goBack = () => {
 
 .todo-item:hover .icon-btn.delete-btn { opacity: 1; }
 .icon-btn.delete-btn { opacity: 0; padding: 4px; }
+
+/* ================= 移动端细节适配 ================= */
+@media (max-width: 768px) {
+  /* 1. 抹除移动端多余的内边距和背景框，让待办列表自然铺开 */
+  .todo-section {
+    padding: 0;
+    background: transparent;
+    border: none;
+    margin-top: 12px;
+  }
+  
+  .todo-title {
+    margin-bottom: 12px;
+  }
+}
 </style>

@@ -103,7 +103,7 @@ const handleDelete = (id: number) => {
 
 .blog-title { margin: 0 0 12px 0; font-size: 1.4rem; color: #111827; display: flex; align-items: center; }
 .pin-badge { color: #eab308; margin-right: 8px; display: flex; align-items: center; }
-.blog-summary { margin: 0 0 16px 0; color: #4b5563; font-size: 1rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.blog-summary { margin: 0 0 16px 0; color: #4b5563; font-size: 1rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .blog-date { font-size: 0.875rem; color: #9ca3af; }
 
 .action-buttons { display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s; margin-top: -4px; }
@@ -112,4 +112,11 @@ const handleDelete = (id: number) => {
 .icon-btn.pin-btn.active { color: #ca8a04; }
 
 .empty-state { text-align: center; color: #6b7280; padding: 40px 0; font-size: 1.1rem; }
+
+/* ================= 移动端细节适配 ================= */
+@media (max-width: 768px) {
+  .page-header h2 {
+    display: none !important;
+  }
+}
 </style>

@@ -219,4 +219,42 @@ const handleFileUpload = (event: Event) => {
 .outline-btn:hover { background-color: #eff6ff; }
 .danger-btn { background-color: #ef4444; border: 1px solid #ef4444; }
 .danger-btn:hover { background-color: #dc2626; border-color: #dc2626; }
+
+/* ================= 移动端细节适配 ================= */
+@media (max-width: 768px) {
+  /* 1. 设置卡片内边距缩减，适应窄屏 */
+  .settings-card, .setting-section {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  /* 2. 描述文字稍微减小，防止换行过多 */
+  .setting-desc {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  /* 3. 核心：将操作按钮全部改为纵向堆叠的“通栏大按钮” */
+  .setting-actions, .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+  
+  /* 确保所有的按钮、上传框（如果用 label 包裹的 input file）都撑满屏幕 */
+  .setting-actions button, 
+  .setting-actions .btn,
+  .setting-actions label {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 12px;
+    font-size: 1.05rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
 </style>

@@ -279,4 +279,42 @@ const vFocus = {
 .action-btn { padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 0.95rem; border: none; transition: all 0.2s; }
 .action-btn.cancel { background: #f3f4f6; color: #4b5563; }
 .action-btn.cancel:hover { background: #e5e7eb; }
+
+/* ================= 移动端细节适配 ================= */
+@media (max-width: 768px) {
+  /* 1. 头部操作区改为垂直堆叠 */
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
+  }
+
+  /* 2. 筛选状态组允许换行，隐藏电脑端的竖向分割线 */
+  .filter-group {
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+  }
+  .divider-vertical {
+    display: none; 
+  }
+
+  /* 3. 新建按钮变成撑满屏幕的 App 级大按钮，方便拇指点击 */
+  .create-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.05rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* 4. 修复卡片内的下拉菜单在手机边缘被截断的问题 */
+  .timer-dropdown {
+    left: auto;
+    right: 0; /* 强制靠右对齐 */
+    width: 220px;
+    transform-origin: top right;
+  }
+}
 </style>

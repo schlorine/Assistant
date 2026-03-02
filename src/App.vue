@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import IntroScreen from './components/IntroScreen.vue' // 新增这一行引入动效组件
+import SidebarIcon from './components/icons/SidebarIcon.vue'
 
 const isCollapsed = ref(false)
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
 }
+
 
 // 新用户引导弹窗状态
 const showWelcomeModal = ref(false)
@@ -36,36 +38,36 @@ const closeWelcomeModal = () => {
       </div>
 
       <nav class="sidebar-nav">
-        <router-link to="/" class="nav-item" title="月历版面">
-          <span class="icon">📅</span>
-          <span class="text" v-show="!isCollapsed">月历版面</span>
-        </router-link>
-        
-        <router-link to="/projects" class="nav-item" title="项目版面">
-          <span class="icon">📁</span>
-          <span class="text" v-show="!isCollapsed">项目版面</span>
+        <router-link to="/" class="nav-item" exact-active-class="router-link-active">
+          <SidebarIcon name="calendar" />
+          <span class="text" v-show="!isCollapsed">月历</span>
         </router-link>
 
-        <router-link to="/blog" class="nav-item" title="博客版面">
-          <span class="icon">📝</span>
-          <span class="text" v-show="!isCollapsed">博客版面</span>
+        <router-link to="/projects" class="nav-item" active-class="router-link-active">
+          <SidebarIcon name="project" />
+          <span class="text" v-show="!isCollapsed">项目</span>
         </router-link>
-        
-        <router-link to="/whiteboard" class="nav-item" title="灵感白板">
-          <span class="icon">💡</span>
-          <span class="text" v-show="!isCollapsed">灵感白板</span>
+
+        <router-link to="/blog" class="nav-item" active-class="router-link-active">
+          <SidebarIcon name="blog" />
+          <span class="text" v-show="!isCollapsed">博客</span>
+        </router-link>
+
+        <router-link to="/whiteboard" class="nav-item" active-class="router-link-active">
+          <SidebarIcon name="whiteboard" />
+          <span class="text" v-show="!isCollapsed">白板</span>
         </router-link>
 
         <div class="divider"></div>
-        
-        <a href="#" class="nav-item disabled" title="用户页面 (开发中)">
-          <span class="icon">👤</span>
-          <span class="text" v-show="!isCollapsed">用户页面</span>
-        </a>
-        
-        <router-link to="/settings" class="nav-item" title="设置页面">
-          <span class="icon">⚙️</span>
-          <span class="text" v-show="!isCollapsed">设置页面</span>
+
+        <router-link to="/user" class="nav-item disabled" active-class="router-link-active">
+          <SidebarIcon name="user" />
+          <span class="text" v-show="!isCollapsed">用户</span>
+        </router-link>
+
+        <router-link to="/settings" class="nav-item" active-class="router-link-active">
+          <SidebarIcon name="settings" />
+          <span class="text" v-show="!isCollapsed">设置</span>
         </router-link>
       </nav>
     </aside>
@@ -138,12 +140,12 @@ body { margin: 0; padding: 0; background-color: #f3f4f6; }
 /* ==========================================
    移动端全局导航适配 (Mobile Bottom Tab Bar)
    ========================================== */
-@media (max-width: 768px) {
-  /* 补充：彻底锁定手机端系统级的原生反弹和多余边距 */
-  :global(body) {
-    margin: 0 !important;
-    overflow: hidden !important;
-  }
+  @media (max-width: 768px) {
+    /* 补充：彻底锁定手机端系统级的原生反弹和多余边距 */
+    :global(body) {
+      margin: 0 !important;
+      overflow: hidden !important;
+    }
 
   /* 修改：让 App 成为接管全站的完美容器 */
   .app-layout {

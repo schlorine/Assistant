@@ -68,6 +68,7 @@ const clearBoard = () => {
     store.clearAll()
   }
 }
+
 </script>
 
 <template>
@@ -149,5 +150,48 @@ const clearBoard = () => {
   background: #ffffff; border: 2px dashed #3b82f6; border-radius: 8px;
   outline: none; resize: both; min-width: 150px; min-height: 50px;
   box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); font-family: inherit;
+}
+
+/* ================= 移动端细节适配 ================= */
+@media (max-width: 768px) {
+  /* 1. 彻底锁死白板外层：禁止浏览器接管触摸手势（如越界回弹、下拉刷新） */
+  .whiteboard-container, .whiteboard-wrapper {
+    height: calc(100dvh - 130px); /* 扣除顶部标题和底部导航栏的高度 */
+    width: 100%;
+    overflow: hidden;
+    touch-action: none !important; /* 绝对核心魔法：告诉浏览器“这里所有的滑动由我自己的代码接管” */
+    position: relative;
+  }
+
+/* 2. 放大灵感便签，并确保其作为绝对定位的参照物 */
+  .whiteboard-item {
+    position: absolute; /* 确保定位生效 */
+    padding: 12px 16px;
+    font-size: 1rem;
+    min-width: 80px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  /* 3. 强制垃圾桶飞出文档流，固定在右上角，绝不换行！ */
+  .whiteboard-item .delete-btn {
+    position: absolute !important;
+    top: -10px !important;
+    right: -10px !important;
+    width: 24px !important;
+    height: 24px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1 !important; 
+    background: #ef4444 !important; /* 红底白字 */
+    color: white !important;
+    border-radius: 50% !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
 }
 </style>

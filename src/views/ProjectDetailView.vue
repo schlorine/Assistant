@@ -215,4 +215,38 @@ const goBack = () => {
 .timer-toggle-btn { background: transparent; border: none; color: #9ca3af; padding: 8px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
 .timer-toggle-btn:hover { background: #f3f4f6; color: #3b82f6; }
 .timer-toggle-btn.active { color: #ef4444; background: #fee2e2; }
+
+/* ================= 移动端细节适配 ================= */
+@media (max-width: 768px) {
+  /* 1. 头部标题与状态按钮分行排列 */
+  .header-left {
+    margin-bottom: 12px;
+    width: 100%;
+  }
+  .header-actions {
+    width: 100%;
+    overflow-x: auto; /* 状态按钮过多时允许横向滑动防挤压 */
+    padding-bottom: 4px;
+  }
+  .icon-btn-group {
+    width: max-content; /* 保证按钮不被压缩 */
+  }
+  .status-icon-btn {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  /* 2. 编辑器和计时器上下堆叠时的空间分配 */
+  .editor-section {
+    min-height: 350px; /* 给富文本一个合理的基础高度 */
+    margin-bottom: 20px; /* 与下方的计时器拉开距离 */
+    border: 1px solid #e5e7eb; /* 手机端增加边框以区分边界 */
+  }
+  
+  .timer-section {
+    background: transparent;
+    border: none;
+    padding: 0; /* 手机端外层无需 padding，让卡片直接撑满 */
+  }
+}
 </style>

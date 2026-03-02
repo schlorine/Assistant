@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBlogStore } from '../stores/blogStore'
 import { QuillEditor } from '@vueup/vue-quill'
@@ -23,6 +23,26 @@ watch([blogTitle, editorContent], ([newTitle, newContent]) => {
 const goBack = () => {
   router.push('/blog')
 }
+
+// ================= 智能清理与自动命名逻辑 =================
+onUnmounted(() => {
+  if (!blog) return
+  
+  const title = blog.title?.trim() || ''
+  const content = blog.content || ''
+  
+  // 去除HTML标签，检查是否有真实文字，或者是否插入了图片
+  const plainText = content.replace(/<[^>]+>/g, '').trim()
+  const hasContent = plainText.length > 0 || content.includes('<img')
+  
+  if (!title && !hasContent) {
+    // 标题和内容都为空：纯空白文档，自动删除
+    store.deleteBlog(blog.id)
+  } else if (!title && hasContent) {
+    // 没有写标题，但写了正文：自动补充默认标题
+    blog.title = '无标题文章'
+  }
+})
 </script>
 
 <template>

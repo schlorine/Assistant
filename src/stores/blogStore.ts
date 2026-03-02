@@ -50,7 +50,7 @@ export const useBlogStore = defineStore('blog', () => {
     const newId = Date.now();
     blogs.value.unshift({
       id: newId,
-      title: "无标题文章",
+      title: "",
       content: "",
       date: new Date().toISOString().split("T")[0]!,
       summary: "",

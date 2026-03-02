@@ -207,4 +207,73 @@
     .ql-editor {
         padding: 12px !important;
     }
+/* =================================================
+     提取：全站通用的移动端组件与排版模式
+     ================================================= */
+
+/* 1. 全局隐藏钩子 */
+.mobile-hide {
+    display: none !important;
+}
+
+/* 2. 通用输入行防溢出 (如：新建计时器、新建待办、搜索框) */
+.input-group,
+.action-group {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    width: 100%;
+}
+
+.input-group input,
+.action-group input,
+.search-input {
+    flex: 1;
+    min-width: 0 !important;
+    /* 核心魔法：打破原生宽度限制，防止撑破屏幕 */
+    width: auto !important;
+}
+
+.input-group button,
+.action-group button,
+.create-btn {
+    width: auto !important;
+    white-space: nowrap;
+    /* 强制文字不换行 */
+    flex-shrink: 0;
+    /* 防止被左侧无限变大的输入框挤压变形 */
+}
+
+/* 3. 通用移动端头部操作区堆叠 (如：项目列表顶部的筛选) */
+.header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+}
+
+/* =================================================
+   触屏设备交互优化：彻底消灭 Hover 状态残留
+   ================================================= */
+@media (hover: none) {
+
+    /* 当设备是触摸屏时，强行覆盖所有按钮的悬浮变色，使其透明 */
+    .icon-btn:hover,
+    .delete-btn:hover,
+    .edit-btn:hover,
+    .date-display:hover,
+    .day-cell:hover,
+    .todo-item:hover {
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* 可选：为手机端提供更原生的“手指按下”点击反馈 */
+    .icon-btn:active,
+    .delete-btn:active,
+    .day-cell:active {
+        opacity: 0.5 !important;
+        transition: opacity 0.1s;
+    }
+}
 }
