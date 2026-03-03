@@ -24,13 +24,7 @@ export default defineConfig({
             src: "/logo.png",
             sizes: "192x192",
             type: "image/png"
-          },
-          // {
-          //   src: "/pwa-512x512.png",
-          //   sizes: "512x512",
-          //   type: "image/png",
-          //   purpose: "any maskable" // 兼容安卓各种奇怪的图标形状
-          // }
+          }
         ]
       }
     })
