@@ -36,8 +36,8 @@ export const useBlogStore = defineStore('blog', () => {
     }
   }
 
-  watch(() => userStore.currentUser, (user) => {
-    if (user) {
+  watch(() => userStore.currentUser?.id, (userId) => {
+    if (userId) {
       fetchBlogs()
     } else {
       blogs.value = []

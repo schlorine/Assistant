@@ -37,8 +37,8 @@ export const useWhiteboardStore = defineStore('whiteboard', () => {
     }
   }
 
-  watch(() => userStore.currentUser, (user) => {
-    if (user) fetchItems()
+  watch(() => userStore.currentUser?.id, (userId) => {
+    if (userId) fetchItems()
     else items.value = []
   }, { immediate: true })
 

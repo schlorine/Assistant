@@ -16,17 +16,14 @@ const showWelcomeModal = ref(false)
 const dontShowAgain = ref(false)
 
 // 【核心逻辑重构】：精准控制弹窗出现的时机
-watch(() => userStore.currentUser, (user) => {
-  // 只有在已登录，且不在登录页面的情况下
-  if (user && !isLoginRoute.value) {
-    const hideFlag = localStorage.getItem(`hideWelcome_${user.id}`)
-    
-    // 如果用户没点过“不再显示”
+// 核心修复：加上 ?.id，只监听用户 ID 的变化
+watch(() => userStore.currentUser?.id, (userId) => {
+  if (userId && !isLoginRoute.value) {
+    const hideFlag = localStorage.getItem(`hideWelcome_${userId}`)
     if (hideFlag !== 'true') {
-      // 延迟 2.3 秒弹出。这样正好卡在 IntroScreen (2秒) 渐隐消失的那一瞬间弹出！
       setTimeout(() => {
         showWelcomeModal.value = true
-      }, 2300)
+      }, 1000)
     }
   } else {
     showWelcomeModal.value = false

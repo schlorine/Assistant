@@ -8,12 +8,13 @@ export interface DayRecord { content: string; todos: Todo[] }
 
 export const useJournalStore = defineStore('journal', () => {
   const records = ref<Record<string, DayRecord>>({})
+  const isLoading = ref(false)
   const journalIds = ref<Record<string, number>>({}) 
   const userStore = useUserStore()
 
   const fetchJournals = async () => {
     if (!userStore.currentUser) return
-    
+    isLoading.value = true
     const [jRes, tRes] = await Promise.all([
       supabase.from('journals').select('*').eq('user_id', userStore.currentUser.id),
       supabase.from('todos').select('*').eq('user_id', userStore.currentUser.id)
@@ -42,10 +43,11 @@ export const useJournalStore = defineStore('journal', () => {
     }
     records.value = tempRecords
     journalIds.value = tempIds
+    isLoading.value = false
   }
 
-  watch(() => userStore.currentUser, (user) => {
-    if (user) fetchJournals()
+  watch(() => userStore.currentUser?.id, (userId) => {
+    if (userId) fetchJournals()
     else { records.value = {}; journalIds.value = {} }
   }, { immediate: true })
 
@@ -132,5 +134,5 @@ export const useJournalStore = defineStore('journal', () => {
     }
   }
 
-  return { records, fetchJournals, getRecord, updateContent, addTodo, deleteTodo, updateTodoText, updateTodoStatus }
+  return { records, fetchJournals, getRecord, updateContent, addTodo, deleteTodo, updateTodoText, updateTodoStatus, isLoading }
 })

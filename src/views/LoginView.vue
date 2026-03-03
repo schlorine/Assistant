@@ -31,7 +31,9 @@ const handleSubmit = async () => {
       
       await userStore.signUp(username.value.trim(), email.value.trim(), password.value)
       successMessage.value = '注册成功！即将进入系统...'
-      setTimeout(() => router.push('/'), 1000)
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 1500)
     }
   } catch (error: any) {
     errorMessage.value = error.message || '操作失败，请重试'

@@ -33,8 +33,8 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
-  watch(() => userStore.currentUser, (user) => {
-    if (user) fetchProjectsData()
+  watch(() => userStore.currentUser?.id, (userId) => {
+    if (userId) fetchProjectsData()
     else { projects.value = []; timers.value = {} }
   }, { immediate: true })
 
