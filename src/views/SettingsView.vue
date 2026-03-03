@@ -196,6 +196,7 @@ const exportToMarkdown = () => {
           <template v-else>
             <p>您的浏览器暂不支持一键安装，或您已通过此方式运行。</p>
             <p>您可以尝试点击浏览器右上角菜单，选择<strong>「安装应用」</strong>或<strong>「添加到主屏幕」</strong>。</p>
+            <p>对于iOS用户，请使用Safari浏览器打开，再次点击按钮并跟随指示操作。</p>
           </template>
         </div>
         <div class="modal-actions" style="margin-top: 24px;">
