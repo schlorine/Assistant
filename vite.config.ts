@@ -13,23 +13,24 @@ export default defineConfig({
       },
       // 这里的配置会完全替代你之前手动创建的 manifest.json
       manifest: {
-        name: "私人助理 | Schlorine's Workspace",
-        short_name: "私人助理",
+        name: "数字工作台 | Your Personal Assistant",
+        short_name: "数字工作台",
         start_url: "/",
         display: "standalone",
         background_color: "#f3f4f6",
         theme_color: "#3b82f6",
         icons: [
           {
-            src: "/logo.svg",
+            src: "/logo.png",
             sizes: "192x192",
-            type: "image/svg+xml"
+            type: "image/png"
           },
-          {
-            src: "/logo.svg",
-            sizes: "512x512",
-            type: "image/svg+xml"
-          }
+          // {
+          //   src: "/pwa-512x512.png",
+          //   sizes: "512x512",
+          //   type: "image/png",
+          //   purpose: "any maskable" // 兼容安卓各种奇怪的图标形状
+          // }
         ]
       }
     })
