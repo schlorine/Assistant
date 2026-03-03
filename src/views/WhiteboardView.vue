@@ -1,10 +1,32 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useWhiteboardStore } from '../stores/whiteboardStore'
 import IconDelete from '../components/icons/IconDelete.vue'
-
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const store = useWhiteboardStore()
+
+// --- 新增：获取当前屏幕宽度，用于手机端防溢出 ---
+const windowWidth = ref(window.innerWidth)
+const isMobile = ref(window.innerWidth <= 768)
+
+const handleResize = () => {
+  windowWidth.value = window.innerWidth
+  isMobile.value = window.innerWidth <= 768
+}
+
+onMounted(() => window.addEventListener('resize', handleResize))
+onUnmounted(() => window.removeEventListener('resize', handleResize))
+
+// 视觉防溢出函数：如果是手机端且 X 坐标超出屏幕，强制靠左/右对齐展示
+const getSafeX = (x: number) => {
+  if (isMobile.value) {
+    const maxSafeX = windowWidth.value - 220 // 假设便签宽度为 200px 左右，留 20px 边距
+    return Math.min(x, maxSafeX > 0 ? maxSafeX : 0)
+  }
+  return x // 电脑端原样返回
+}
+
+// --- 白板基础操作 ---
 
 // 点击空白处生成新文本框
 const handleBoardClick = (e: MouseEvent) => {
@@ -26,37 +48,57 @@ const handleDoubleClick = (item: any) => {
   item.isEditing = true
 }
 
-// --- 自由拖拽逻辑 ---
+// --- 自由拖拽逻辑 (已兼容 PC 鼠标与移动端触摸) ---
 const draggingId = ref<number | null>(null)
 let startMouseX = 0
 let startMouseY = 0
 let startItemX = 0
 let startItemY = 0
 
-const startDrag = (e: MouseEvent, item: any) => {
+// 支持 MouseEvent 或 TouchEvent
+const startDrag = (e: MouseEvent | TouchEvent, item: any) => {
   if (item.isEditing) return // 正在打字时不允许拖拽
   draggingId.value = item.id
-  startMouseX = e.clientX
-  startMouseY = e.clientY
+  
+  // 提取坐标：判断是 Touch 还是 Mouse
+  const clientX = 'touches' in e ? e.touches[0]!.clientX : e.clientX
+  const clientY = 'touches' in e ? e.touches[0]!.clientY : e.clientY
+  
+  startMouseX = clientX
+  startMouseY = clientY
   startItemX = item.x
   startItemY = item.y
   
-  // 绑定在全局 window 上，即使鼠标甩出框外也不会丢失焦点
+  // 绑定在全局 window 上，兼容双端事件
   window.addEventListener('mousemove', onDrag)
+  window.addEventListener('touchmove', onDrag, { passive: false }) // passive: false 允许阻止默认滑动
   window.addEventListener('mouseup', stopDrag)
+  window.addEventListener('touchend', stopDrag)
 }
 
-const onDrag = (e: MouseEvent) => {
+const onDrag = (e: MouseEvent | TouchEvent) => {
   if (draggingId.value === null) return
-  const dx = e.clientX - startMouseX
-  const dy = e.clientY - startMouseY
+
+  // 核心：如果是触摸拖动便签，阻止网页跟随滚动
+  if ('touches' in e && e.cancelable) {
+    e.preventDefault() 
+  }
+
+  const clientX = 'touches' in e ? e.touches[0]!.clientX : e.clientX
+  const clientY = 'touches' in e ? e.touches[0]!.clientY : e.clientY
+
+  const dx = clientX - startMouseX
+  const dy = clientY - startMouseY
+  
   store.updatePosition(draggingId.value, startItemX + dx, startItemY + dy)
 }
 
 const stopDrag = () => {
   draggingId.value = null
   window.removeEventListener('mousemove', onDrag)
+  window.removeEventListener('touchmove', onDrag)
   window.removeEventListener('mouseup', stopDrag)
+  window.removeEventListener('touchend', stopDrag)
 }
 
 // 一键清空
@@ -87,8 +129,9 @@ const clearBoard = () => {
         :key="item.id"
         class="board-item"
         :class="{ 'is-dragging': draggingId === item.id }"
-        :style="{ left: item.x + 'px', top: item.y + 'px' }"
-        @mousedown="startDrag($event, item)"
+        :style="{ left: getSafeX(item.x) + 'px', top: item.y + 'px' }"
+        @mousedown.stop="startDrag($event, item)"
+        @touchstart.stop="startDrag($event, item)"
         @dblclick="handleDoubleClick(item)"
       >
         <textarea 

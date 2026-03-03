@@ -288,37 +288,53 @@ const getActiveTimer = (project: any) => {
 
 /* ================= 移动端细节适配 ================= */
 @media (max-width: 768px) {
-  /* 1. 头部操作区改为垂直堆叠 */
+  /* 1. 将头部变为允许换行的 Flex 容器 */
+  .page-header {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  /* 2. 标题排在第一号位 */
+  .page-header h2 {
+    order: 1;
+    margin: 0;
+  }
+
+  /* 3. 神奇属性：让容器“隐身”，使其内部的复选框和按钮直接受外层排版控制 */
   .header-actions {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-    width: 100%;
+    display: contents; 
   }
 
-  /* 2. 筛选状态组允许换行，隐藏电脑端的竖向分割线 */
-  .filter-group {
-    flex-wrap: wrap;
-    gap: 12px;
-    width: 100%;
-  }
-  .divider-vertical {
-    display: none; 
-  }
-
-  /* 3. 新建按钮变成撑满屏幕的 App 级大按钮，方便拇指点击 */
+  /* 4. 新建按钮排在第二号位（与标题同处第一行，靠右），并恢复精巧尺寸 */
   .create-btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 1.05rem;
-    display: flex;
-    justify-content: center;
+    order: 2;
+    width: auto !important;
+    padding: 8px 16px !important;
+    font-size: 0.95rem !important;
+    margin: 0 !important;
   }
 
-  /* 4. 修复卡片内的下拉菜单在手机边缘被截断的问题 */
+  /* 5. 状态筛选组排在第三号位，强制 100% 宽度，将其挤到第二行 */
+  .filter-group {
+    order: 3;
+    width: 100% !important;
+    display: flex;
+    gap: 16px;
+    margin-top: 4px; /* 增加一点与上方标题的距离 */
+  }
+
+  /* 隐藏电脑端竖线 */
+  .divider-vertical {
+    display: none;
+  }
+
+  /* 保留下拉菜单在边缘不被截断的修复 */
   .timer-dropdown {
     left: auto;
-    right: 0; /* 强制靠右对齐 */
+    right: 0;
     width: 220px;
     transform-origin: top right;
   }

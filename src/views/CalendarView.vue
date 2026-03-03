@@ -195,6 +195,16 @@ const handleAddGlobalTodo = () => {
   newTodoText.value = ''
 }
 
+// 新增切换视图的函数
+const toggleViewMode = async () => {
+  viewMode.value = viewMode.value === 'calendar' ? 'todos' : 'calendar'
+  // 如果切回了月历视图，等 DOM 渲染完后立刻滚动到当前月
+  if (viewMode.value === 'calendar') {
+    await nextTick()
+    setTimeout(() => scrollToCurrentMonth(), 50)
+  }
+}
+
 const editingTodoId = ref<number | null>(null)
 const tempTodoText = ref('')
 
@@ -245,8 +255,7 @@ const saveTodoText = (date: string, todoId: number) => {
           <IconChevronRight style="font-size: 24px;" />
         </button>
         
-        <button class="icon-btn" @click="viewMode = viewMode === 'calendar' ? 'todos' : 'calendar'" :title="viewMode === 'calendar' ? '查看全部待办' : '返回月历'">
-          <svg v-if="viewMode === 'calendar'" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        <button class="icon-btn" @click="toggleViewMode" :title="viewMode === 'calendar' ? '查看全部待办' : '返回月历'">          <svg v-if="viewMode === 'calendar'" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
           <svg v-else viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
         </button>
       </div>
@@ -479,6 +488,6 @@ const saveTodoText = (date: string, todoId: number) => {
     text-align: center; width: 100%; box-sizing: border-box; background-color: #f3f4f6; color: #4b5563;
   }
   
-  .day-cell.has-journal { background-color: transparent; }
+  .day-cell.has-journal { background-color: #e0f2fe; }
 }
 </style>

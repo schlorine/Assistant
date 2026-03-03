@@ -125,5 +125,9 @@ onBeforeUnmount(() => {
   .todo-title {
     margin-bottom: 12px;
   }
+  /* 强制移动端输入框字体至少为 16px，彻底杜绝 iOS 自动放大机制 */
+  .todo-input, .edit-todo-input {
+    font-size: 16px !important;
+  }
 }
 </style>
