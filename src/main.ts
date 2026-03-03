@@ -4,6 +4,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import './assets/common.css' // 确保你的全局样式在这里引入
+import 'virtual:pwa-register'
 
 const app = createApp(App)
 

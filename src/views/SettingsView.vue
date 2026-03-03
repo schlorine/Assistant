@@ -1,10 +1,41 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useJournalStore } from '../stores/journalStore'
 import { useProjectStore } from '../stores/projectStore'
 import { useBlogStore } from '../stores/blogStore'
 import { useUserStore } from '../stores/userStore'
+import { ref, onMounted, onUnmounted } from 'vue'
+
+// 添加到主屏幕功能
+
+// PWA 安装逻辑
+const showInstallGuide = ref(false)
+const isIOS = ref(false)
+
+onMounted(() => {
+  // 只保留 iOS 判断逻辑，移除原来的 beforeinstallprompt 监听
+  const userAgent = window.navigator.userAgent.toLowerCase()
+  isIOS.value = /iphone|ipad|ipod/.test(userAgent)
+})
+
+const handleInstallClick = async () => {
+  // 去全局 window 对象里拿刚才拦截到的事件
+  const promptEvent = (window as any).deferredPWAInstallPrompt
+  
+  if (promptEvent) {
+    // 触发系统原生的安装弹窗
+    promptEvent.prompt()
+    const { outcome } = await promptEvent.userChoice
+    if (outcome === 'accepted') {
+      // 用户同意安装后，清空这个事件
+      ;(window as any).deferredPWAInstallPrompt = null 
+    }
+  } else {
+    // 如果没拦截到（比如是 iOS，或者已经安装过了，或者是不支持的浏览器）
+    showInstallGuide.value = true
+  }
+}
+///////////////////////////////////////////////////
 
 const journalStore = useJournalStore()
 const projectStore = useProjectStore()
@@ -116,6 +147,21 @@ const exportToMarkdown = () => {
       <div class="settings-card">
         <div class="setting-item">
           <div class="setting-info">
+            <h3>📱 添加到主屏幕 (PWA)</h3>
+            <p>将工作台作为独立 App 安装到手机桌面，隐藏浏览器工具栏，体验纯净的沉浸式全屏视图。</p>
+          </div>
+          <button 
+            class="action-btn" 
+            @click="handleInstallClick" 
+          >
+            添加到主屏幕
+          </button>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
             <h3>数据导出 (阅读版)</h3>
             <p>将月历、项目和博客中的关键文本提取为原生 Markdown 文档。格式经过排版优化，适合日常脱机查阅或导入其他知识库。</p>
           </div>
@@ -134,6 +180,30 @@ const exportToMarkdown = () => {
         </div>
       </div>
     </div>
+
+    <div class="modal-overlay" v-if="showInstallGuide" @click="showInstallGuide = false">
+      <div class="modal-content" @click.stop>
+        <h3>如何安装到桌面？</h3>
+        <div class="guide-content" style="margin-top: 16px; color: #4b5563; font-size: 0.95rem; line-height: 1.6;">
+          <template v-if="isIOS">
+            <p>由于苹果 iOS 的安全限制，请按照以下步骤手动添加：</p>
+            <ol style="padding-left: 20px; margin-top: 12px;">
+              <li style="margin-bottom: 8px;">点击浏览器底部的 <strong>「分享」</strong> 图标 <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></li>
+              <li style="margin-bottom: 8px;">在菜单中下滑，点击 <strong>「添加到主屏幕」</strong> <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></li>
+              <li>点击右上角的「添加」即可。</li>
+            </ol>
+          </template>
+          <template v-else>
+            <p>您的浏览器暂不支持一键安装，或您已通过此方式运行。</p>
+            <p>您可以尝试点击浏览器右上角菜单，选择<strong>「安装应用」</strong>或<strong>「添加到主屏幕」</strong>。</p>
+          </template>
+        </div>
+        <div class="modal-actions" style="margin-top: 24px;">
+          <button class="action-btn" @click="showInstallGuide = false" style="width: 100%; justify-content: center;">我知道了</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -174,4 +244,9 @@ const exportToMarkdown = () => {
   .profile-info { width: 100%; border-bottom: 1px solid #f3f4f6; padding-bottom: 20px; }
   .profile-card .danger-btn { width: 100%; margin-top: 8px; }
 }
+
+/* 引导弹窗样式补充 */
+.guide-content { margin-top: 16px; color: #4b5563; font-size: 0.95rem; line-height: 1.6; }
+.guide-content ol { padding-left: 20px; margin-top: 12px; }
+.guide-content li { margin-bottom: 8px; }
 </style>

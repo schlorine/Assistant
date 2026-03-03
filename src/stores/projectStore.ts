@@ -4,6 +4,8 @@ import { supabase } from '../utils/supabase'
 import { useUserStore } from './userStore'
 import { getTodayYMD } from '../utils/timeFormat'
 
+const isLoading = ref(false) 
+
 export interface Project { id: number; title: string; createDate: string; content?: string; activeTimerId?: number; status: 'not-started' | 'in-progress' | 'completed' }
 export interface Timer { id: number; name: string; isRunning: boolean; startTime: number; elapsed: number }
 
@@ -14,6 +16,7 @@ export const useProjectStore = defineStore('project', () => {
 
   const fetchProjectsData = async () => {
     if (!userStore.currentUser) return
+    isLoading.value = true
     const [projectsRes, timersRes] = await Promise.all([
       supabase.from('projects').select('*').eq('user_id', userStore.currentUser.id).order('created_at', { ascending: true }),
       supabase.from('timers').select('*').eq('user_id', userStore.currentUser.id)
@@ -31,6 +34,7 @@ export const useProjectStore = defineStore('project', () => {
       })
       timers.value = tempTimers
     }
+    isLoading.value = false
   }
 
   watch(() => userStore.currentUser?.id, (userId) => {
@@ -121,5 +125,5 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
   
-  return { projects, timers, fetchProjectsData, addProject, deleteProject, updateProjectTitle, updateProjectContent, setActiveTimer, addTimer, updateTimerName, toggleTimer, deleteTimer, updateProjectStatus }
+  return { projects, timers, isLoading, fetchProjectsData, addProject, deleteProject, updateProjectTitle, updateProjectContent, setActiveTimer, addTimer, updateTimerName, toggleTimer, deleteTimer, updateProjectStatus }
 })

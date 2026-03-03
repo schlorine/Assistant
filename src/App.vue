@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from './stores/userStore'
 import IntroScreen from './components/IntroScreen.vue'
 import SidebarIcon from './components/icons/SidebarIcon.vue'
+
+// 🌟 引入刚刚建立的配置中心
+import { RELEASE_NOTES } from './config/changelog'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -15,14 +18,24 @@ const toggleSidebar = () => { isCollapsed.value = !isCollapsed.value }
 const showWelcomeModal = ref(false)
 const dontShowAgain = ref(false)
 
-// 【核心逻辑重构】：精准控制弹窗出现的时机
-// 核心修复：加上 ?.id，只监听用户 ID 的变化
+onMounted(() => {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault() // 阻止浏览器默认的顶部横幅
+    ;(window as any).deferredPWAInstallPrompt = e // 挂载到全局
+  })
+})
+
 watch(() => userStore.currentUser?.id, (userId) => {
   if (userId && !isLoginRoute.value) {
-    const hideFlag = localStorage.getItem(`hideWelcome_${userId}`)
-    if (hideFlag !== 'true') {
+    // 获取用户最后一次确认“不再显示”的版本号
+    const acknowledgedVersion = localStorage.getItem(`welcomeVersion_${userId}`)
+    
+    // 🌟 核心修改：直接比对配置文件里的最新版本号
+    if (acknowledgedVersion !== RELEASE_NOTES.version) {
       setTimeout(() => {
         showWelcomeModal.value = true
+        // 每次弹出时，重置 checkbox 状态
+        dontShowAgain.value = false 
       }, 1000)
     }
   } else {
@@ -32,7 +45,8 @@ watch(() => userStore.currentUser?.id, (userId) => {
 
 const closeWelcomeModal = () => {
   if (dontShowAgain.value && userStore.currentUser) {
-    localStorage.setItem(`hideWelcome_${userStore.currentUser.id}`, 'true')
+    // 🌟 核心修改：如果勾选了不再显示，把配置里的最新版本号存入本地
+    localStorage.setItem(`welcomeVersion_${userStore.currentUser.id}`, RELEASE_NOTES.version)
   }
   showWelcomeModal.value = false
 }
@@ -86,38 +100,20 @@ const closeWelcomeModal = () => {
       <div class="welcome-overlay" v-if="showWelcomeModal">
         <div class="welcome-modal">
           <div class="welcome-header">
-            <h2>你好，欢迎开启高效数字生活</h2>
+            <h2>{{ RELEASE_NOTES.title }}</h2>
           </div>
-          <div class="welcome-body">
-            <p>为了帮你更好地掌控工作与生活，我们构建了这个极简而强大的个人工作台。你可以在左侧导航栏自由切换模块：</p>
-            <div class="feature-grid">
-              <div class="feature-item">
-                <span class="feature-icon">📅</span>
-                <div class="feature-text"><strong>日志与待办</strong>：记录每日碎片感悟，管理并清空你的 Todo 列表。</div>
-              </div>
-              <div class="feature-item">
-                <span class="feature-icon">📁</span>
-                <div class="feature-text"><strong>项目与工时</strong>：聚焦长期目标，内置后台独立计时器，精准量化时间投入。</div>
-              </div>
-              <div class="feature-item">
-                <span class="feature-icon">📝</span>
-                <div class="feature-text"><strong>深度写作</strong>：沉浸式的 Markdown 编辑器，让深度思考自动沉淀至云端。</div>
-              </div>
-              <div class="feature-item">
-                <span class="feature-icon">💡</span>
-                <div class="feature-text"><strong>灵感白板</strong>：打破线性束缚的无边际点阵墙，随时捕捉一闪而过的灵感。</div>
-              </div>
-            </div>
-            <div class="notice-box">
-              为了助你快速上手，我们已为你预置了少许<strong>示例数据</strong>。随时可以删除它们。
-            </div>
+          
+          <div class="welcome-body" style="padding-bottom: 24px;">
+            <p v-for="(text, index) in RELEASE_NOTES.paragraphs" :key="index" style="margin-bottom: 12px;" v-html="text">
+            </p>
           </div>
+          
           <div class="welcome-footer">
             <label class="checkbox-label">
               <input type="checkbox" v-model="dontShowAgain" />
-              <span>不再显示此向导</span>
+              <span>我已了解，本版本不再提示</span>
             </label>
-            <button class="start-btn" @click="closeWelcomeModal">开启探索</button>
+            <button class="start-btn" @click="closeWelcomeModal">开始探索</button>
           </div>
         </div>
       </div>
@@ -131,11 +127,6 @@ const closeWelcomeModal = () => {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
   background-color: #f3f4f6; z-index: 999999;
 }
-body { margin: 0; padding: 0; background-color: #f3f4f6; }
-#app { max-width: none !important; padding: 0 !important; margin: 0 !important; width: 100vw; height: 100vh; display: block !important; }
-</style>
-
-<style>
 body { margin: 0; padding: 0; background-color: #f3f4f6; }
 #app { max-width: none !important; padding: 0 !important; margin: 0 !important; width: 100vw; height: 100vh; display: block !important; }
 </style>
@@ -175,7 +166,7 @@ body { margin: 0; padding: 0; background-color: #f3f4f6; }
 .feature-text { color: #4b5563; line-height: 1.5; }
 .feature-text strong { color: #111827; }
 
-.notice-box { padding: 12px 16px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 4px; color: #1e3a8a; font-size: 0.9rem; }
+.notice-box :deep(.notice) { padding: 12px 16px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 4px; color: #1e3a8a; font-size: 0.9rem; }
 
 .welcome-footer { padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-top: 1px solid #e5e7eb; }
 .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #6b7280; cursor: pointer; user-select: none; }

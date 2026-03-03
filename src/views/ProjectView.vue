@@ -102,7 +102,7 @@ const getActiveTimer = (project: any) => {
 
 <template>
   <div class="project-container">
-<div class="page-header">
+    <div class="page-header">
       <h2>项目看板</h2>
       
       <div class="header-actions">
@@ -126,7 +126,17 @@ const getActiveTimer = (project: any) => {
       </div>
     </div>
 
-    <div class="project-grid">
+    <div v-if="store.isLoading" class="global-loading">
+      <div class="spinner"></div>
+      <p>正在同步项目数据...</p>
+    </div>
+
+    <div v-else class="project-grid">
+      
+      <div v-if="filteredProjects.length === 0" class="empty-hint">
+        {{ store.projects.length === 0 ? '还没有项目记录，点击上方“创建新项目”吧...' : '没有符合当前筛选条件的项目...' }}
+      </div>
+
       <div v-for="project in filteredProjects" :key="project.id" class="project-card" @click="openProjectDetail(project.id)">
         <div class="card-content">
           <div class="card-header-row">
@@ -155,7 +165,6 @@ const getActiveTimer = (project: any) => {
         </div>
         
         <div class="timer-placeholder" @click.stop>
-          
           <div class="quick-timer-display" v-if="getActiveTimer(project)">
             <div class="time-clickable" @click="toggleTimerSelect(project.id)">
               <span class="time-text" :class="{ running: getActiveTimer(project)?.isRunning }">
@@ -190,14 +199,7 @@ const getActiveTimer = (project: any) => {
               </div>
             </div>
           </div>
-
         </div>
-          
-        </div>
-      </div>
-      
-      <div v-if="filteredProjects.length === 0" class="empty-hint">
-        没有符合当前筛选条件的项目...
       </div>
     </div>
 
@@ -217,6 +219,7 @@ const getActiveTimer = (project: any) => {
         </div>
       </div>
     </div>
+
     <div class="modal-overlay" v-if="projectToDelete !== null">
       <div class="modal-content">
         <h3>删除项目</h3>
@@ -227,6 +230,7 @@ const getActiveTimer = (project: any) => {
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <style scoped>

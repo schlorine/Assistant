@@ -69,9 +69,15 @@ const executeDeleteBlog = () => {
       </div>
     </div>
 
-    <div class="blog-list">
+    <div v-if="store.isLoading" class="global-loading">
+      <div class="spinner"></div>
+      <p>正在同步云端文章...</p>
+    </div>
+
+    <div v-else class="blog-list">
+      
       <div v-if="filteredBlogs.length === 0" class="empty-state">
-        没有找到与搜索词匹配的文章...
+        {{ searchQuery ? '没有找到与搜索词匹配的文章...' : '这里空空如也，点击上方“开始写作”创作第一篇文章吧...' }}
       </div>
       
       <div v-for="blog in filteredBlogs" :key="blog.id" class="blog-card" :class="{ 'is-pinned': blog.id === store.pinnedBlogId }" @click="openBlog(blog.id)">
@@ -97,16 +103,17 @@ const executeDeleteBlog = () => {
       </div>
     </div>
   </div>
+
   <div class="modal-overlay" v-if="showDeleteBlogModal">
-      <div class="modal-content">
-        <h3>删除文章</h3>
-        <p>确定要永久删除这篇文章吗？此操作不可逆，云端数据也将被立刻销毁。</p>
-        <div class="modal-actions">
-          <button class="cancel-btn" @click="showDeleteBlogModal = false">取消</button>
-          <button class="confirm-danger-btn" @click="executeDeleteBlog">确认删除</button>
-        </div>
+    <div class="modal-content">
+      <h3>删除文章</h3>
+      <p>确定要永久删除这篇文章吗？此操作不可逆，云端数据也将被立刻销毁。</p>
+      <div class="modal-actions">
+        <button class="cancel-btn" @click="showDeleteBlogModal = false">取消</button>
+        <button class="confirm-danger-btn" @click="executeDeleteBlog">确认删除</button>
       </div>
     </div>
+  </div>
 </template>
 
 <style scoped>

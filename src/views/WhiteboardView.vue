@@ -66,7 +66,7 @@ const startDrag = (e: MouseEvent | TouchEvent, item: any) => {
   
   startMouseX = clientX
   startMouseY = clientY
-  startItemX = item.x
+  startItemX = getSafeX(item.x)
   startItemY = item.y
   
   // 绑定在全局 window 上，兼容双端事件

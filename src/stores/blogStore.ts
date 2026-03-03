@@ -4,6 +4,8 @@ import { supabase } from '../utils/supabase'
 import { useUserStore } from './userStore'
 import { getTodayYMD } from '../utils/timeFormat'
 
+const isLoading = ref(false) 
+
 export interface BlogPost {
   id: number
   title: string
@@ -21,6 +23,7 @@ export const useBlogStore = defineStore('blog', () => {
 
   const fetchBlogs = async () => {
     if (!userStore.currentUser) return
+    isLoading.value = true 
     const { data, error } = await supabase
       .from('blogs')
       .select('*')
@@ -34,6 +37,7 @@ export const useBlogStore = defineStore('blog', () => {
       const pinned = data.find(b => b.is_pinned)
       pinnedBlogId.value = pinned ? pinned.id : null
     }
+    isLoading.value = false
   }
 
   watch(() => userStore.currentUser?.id, (userId) => {
@@ -112,5 +116,5 @@ export const useBlogStore = defineStore('blog', () => {
     }
   }
 
-  return { blogs, pinnedBlogId, fetchBlogs, addBlog, updateBlog, deleteBlog, togglePin }
+  return { blogs, pinnedBlogId, isLoading,fetchBlogs, addBlog, updateBlog, deleteBlog, togglePin }
 })
